@@ -1,5 +1,12 @@
-bearer_token.py
 workspace.code-workspace
 venv
-modules/__pycache__
-modules/__init__.py
+*__pycache__*
+*__init__*
+user_list
+db
+db_logs
+epicosm_logs
+bearer_token.py
+user_details.json
+user_errors.json
+output

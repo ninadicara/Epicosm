@@ -108,9 +108,6 @@ def main():
     #~ setup signal handler
     signal.signal(signal.SIGINT, epicosm_meta.signal_handler)
 
-    #~ modify status file
-    epicosm_meta.status_up(env.status_file)
-
     #~ tidy up the database for better efficiency
     mongo_ops.index_mongo(env.run_folder)
 
@@ -150,9 +147,6 @@ def main():
         #~ remove the oldest two, a bson and a json
         subprocess.call(["rm", bu_list[0]])
         subprocess.call(["rm", bu_list[1]])
-
-    #~ modify status file
-    epicosm_meta.status_down(env.status_file, env.run_folder)
 
     print(f"Scheduled task finished at {datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.\n")
 
