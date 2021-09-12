@@ -1,0 +1,16 @@
+alive-progress
+jinja2
+liwc
+pandas
+pip-chill
+psutil
+pylint
+pymongo
+pysocks
+retry
+retrying
+rope
+schedule
+textblob
+tweepy
+vadersentiment
