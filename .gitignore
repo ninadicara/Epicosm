@@ -2,6 +2,8 @@ workspace.code-workspace
 venv
 *__pycache__*
 *__init__*
+*~
+*#
 user_list
 db
 db_logs
@@ -10,3 +12,4 @@ bearer_token.py
 user_details.json
 user_errors.json
 output
+LIWC.dic

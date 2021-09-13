@@ -185,7 +185,7 @@ def request_timeline_response(twitter_id, timeline_params):
         return 1
 
 
-def timeline_harvest_v2(db, collection):
+def timeline_harvest(db, collection):
 
     """
     This is the main running function for the harvester,

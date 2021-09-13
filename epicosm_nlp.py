@@ -21,6 +21,9 @@ def args_setup():
 
     parser = argparse.ArgumentParser(description="Epidemiology of Cohort Social Media - Natural Language Processing",
                                      epilog="Example: python3 epicosm_nlp.py --vader --labmt")
+
+    parser.add_argument("--pseudofeed", action="store_true",
+      help="Carry out the NLP operations on the pseudofeed collection, rather than the tweet collection.")
     parser.add_argument("--vader", action="store_true",
       help="Perform VADER NLP on each record in MongoDB.")
     parser.add_argument("--labmt", action="store_true",
@@ -63,23 +66,29 @@ def main():
     #~ setup signal handler
     signal.signal(signal.SIGINT, epicosm_meta.signal_handler)
 
+    #~ set collection name
+    if args.pseudofeed:
+        collection = mongodb_config.pseudofeed_collection
+    else:
+        collection = mongodb_config.collection
+
     #~ check size of collection
-    total_records = mongodb_config.collection.estimated_document_count()
+    total_records = collection.estimated_document_count()
     if total_records == 0:
-        print(f"The database seems empty. Nothing to do.")
-        sys.exit(0)
+        print(f"The collection seems empty. Nothing to do.")
+        sys.exit(1)
 
     if args.vader:
-        nlp_ops.mongo_vader(mongodb_config.db, total_records)
+        nlp_ops.mongo_vader(collection, total_records)
 
     if args.labmt:
-        nlp_ops.mongo_labMT(mongodb_config.db, total_records)
+        nlp_ops.mongo_labMT(collection, total_records)
 
     if args.textblob:
-        nlp_ops.mongo_textblob(mongodb_config.db, total_records)
+        nlp_ops.mongo_textblob(collection, total_records)
 
     if args.liwc:
-        nlp_ops.mongo_liwc(mongodb_config.db, total_records)
+        nlp_ops.mongo_liwc(collection, total_records)
 
     #~ backup database into BSON
     mongo_ops.backup_db(mongodump_executable_path,

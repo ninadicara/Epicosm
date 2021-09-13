@@ -42,7 +42,7 @@ def native_or_compiled():
         #~ we are running native python
         bundle_dir = os.path.dirname(os.path.abspath(__file__))
 
-    print("Epicosm launching as", run_method)
+    print(f"Epicosm launching as {run_method}")
 
     return bundle_dir
 
@@ -140,7 +140,5 @@ def check_env():
         os.makedirs(env.run_folder + "/db_logs")
     if not os.path.exists(env.run_folder + "/epicosm_logs"):
         os.makedirs(env.run_folder + "/epicosm_logs")
-    if not os.path.exists(env.run_folder + "/jsons"):
-        os.makedirs(env.run_folder + "/jsons")
 
     return mongod_executable_path, mongoexport_executable_path, mongodump_executable_path

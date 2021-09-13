@@ -85,7 +85,7 @@ def mongo_insert_groundtruth(db, total_records):
                 save_file.write("%s\n" % user)
 
 
-def mongo_vader(db, total_records):
+def mongo_vader(collection, total_records):
 
     """
     Apply VADER (Hutto & Gilbert 2014) analysis on the contents of the DB,
@@ -99,8 +99,8 @@ def mongo_vader(db, total_records):
     analyser = vader_sentiment.SentimentIntensityAnalyzer()
 
     #~ analyse and insert each vader score for each tweet text
-    with alive_bar(total_records, spinner="dots_recur") as bar:
-        for index, db_document_dict in enumerate(mongodb_config.collection.find({})):
+    with alive_bar(total_records) as bar:
+        for index, db_document_dict in enumerate(collection.find({})):
 
             #~ get the text field for this record
             full_text_field = db_document_dict["text"]
@@ -111,8 +111,8 @@ def mongo_vader(db, total_records):
             vader_positive = analyser.polarity_scores(full_text_field)["pos"]
             vader_compound = analyser.polarity_scores(full_text_field)["compound"]
 
-            mongodb_config.collection.update_one(
-                {"id": db_document_dict["id"]},
+            collection.update_one(
+                {"_id": db_document_dict["_id"]},
                 {"$set": {
                     "epicosm.vader.negative": vader_negative,
                     "epicosm.vader.neutral": vader_neutral,
@@ -124,7 +124,7 @@ def mongo_vader(db, total_records):
     print(f"OK - Vader sentiment analysis applied to {index + 1} records.")
 
 
-def mongo_labMT(db, total_records):
+def mongo_labMT(collection, total_records):
 
     """
     Apply labMT (Dodds & Danforth 2011) to contents of DB,
@@ -136,9 +136,9 @@ def mongo_labMT(db, total_records):
     lang = "english"
     labMT, labMTvector, labMTwordList = labmt.emotionFileReader(stopval=0.0, lang=lang, returnVector=True)
 
-    with alive_bar(total_records, spinner="dots_recur") as bar:
+    with alive_bar(total_records) as bar:
 
-        for index, db_document_dict in enumerate(mongodb_config.collection.find({})):
+        for index, db_document_dict in enumerate(collection.find({})):
 
             #~ get the text field for this record
             full_text_field = db_document_dict["text"]
@@ -161,8 +161,8 @@ def mongo_labMT(db, total_records):
             output_valence = labmt.emotionV(stop_vector, labMTvector)
 
             #~ insert score into DB
-            mongodb_config.collection.update_one(
-                {"id": db_document_dict["id"]},
+            collection.update_one(
+                {"_id": db_document_dict["_id"]},
                 {"$set": {"epicosm.labMT.emotion_valence":
                 float(format(output_valence, '.4f'))}})
 
@@ -171,7 +171,7 @@ def mongo_labMT(db, total_records):
     print(f"OK - labMT sentiment analysis applied to {index + 1} records.")
 
 
-def mongo_textblob(db, total_records):
+def mongo_textblob(collection, total_records):
 
     """
     Apply TextBlob to contents of DB,
@@ -180,8 +180,8 @@ def mongo_textblob(db, total_records):
 
     print(f"TextBlob sentiment, analysing...")
 
-    with alive_bar(total_records, spinner="dots_recur") as bar:
-        for index, db_document_dict in enumerate(mongodb_config.collection.find({})):
+    with alive_bar(total_records) as bar:
+        for index, db_document_dict in enumerate(collection.find({})):
 
             #~ get the text field for this record
             full_text_field = db_document_dict["text"]
@@ -194,8 +194,8 @@ def mongo_textblob(db, total_records):
             blob.noun_phrases
 
             for sentence in blob.sentences:
-                mongodb_config.collection.update_one(
-                    {"id": db_document_dict["id"]},
+                collection.update_one(
+                    {"_id": db_document_dict["_id"]},
                     {"$set": {
                         "epicosm.textblob":
                         float(format(sentence.sentiment.polarity, '.4f'))}})
@@ -205,7 +205,7 @@ def mongo_textblob(db, total_records):
     print(f"OK - TextBlob sentiment analysis applied to {index + 1} records.")
 
 
-def mongo_liwc(db, total_records):
+def mongo_liwc(collection, total_records):
 
     """
     Do LIWC (Pennebaker et al 2015) to contents of DB,
@@ -234,9 +234,9 @@ def mongo_liwc(db, total_records):
 
     parse, category_names = liwc.load_token_parser(dictionary)
 
-    with alive_bar(total_records, spinner="dots_recur") as bar:
+    with alive_bar(total_records) as bar:
 
-        for index, db_document_dict in enumerate(mongodb_config.collection.find({})):
+        for index, db_document_dict in enumerate(collection.find({})):
 
             #~ get the text field for this record
             full_text_field = db_document_dict["text"]
@@ -247,8 +247,8 @@ def mongo_liwc(db, total_records):
 
             for count_category in text_counts:  #~ insert the LIWC values as proportion of word_count
 
-                mongodb_config.collection.update_one(
-                    {"id": db_document_dict["id"]},
+                collection.update_one(
+                    {"_id": db_document_dict["_id"]},
                     {"$set": {
                         "epicosm.liwc." + count_category:
                         float(format((text_counts[count_category] / word_count), '.4f'))}})
@@ -272,7 +272,7 @@ def mongo_extract_emojis(db, total_records):
     pass
 
 
-def mongo_nlp_example(db, total_records):
+def mongo_nlp_example(collection, total_records):
 
     """
     This is a trivial placeholder for custom analyses.
@@ -282,16 +282,16 @@ def mongo_nlp_example(db, total_records):
 
     print(f"e_ratio, analysing...")
 
-    with alive_bar(total_records, spinner="dots_recur") as bar:
+    with alive_bar(total_records) as bar:
 
-        for index, db_document_dict in enumerate(mongodb_config.collection.find({})):
+        for index, db_document_dict in enumerate(collection.find({})):
 
             #~ get the text field for this record
             full_text_field = db_document_dict["text"]
 
             count = Counter(full_text_field)
-            mongodb_config.collection.update_one({
-                "id": db_document_dict["id"]},
+            collection.update_one({
+                "_id": db_document_dict["_id"]},
                 {"$set": {
                     "epicosm.trivial_nlp.e_ratio":
                     float(format(int(count['e']) / int(len(full_text_field)), '.4f'))}})
@@ -307,13 +307,13 @@ def mongo_groundtruth_delta(db, candidate_inference):
     algorithm is correlating with groundtruth
     """
 
-    with alive_bar(total_records, spinner="dots_recur") as bar:
+    with alive_bar(total_records) as bar:
 
         for index, tweet_text in enumerate(mongodb_config.collection.find({}, {"id": 1, interest_field: 1})):
 
             groundtruth_delta = groundtruthfield - candidate_inference_output_field
 
-            mongodb_config.collection.update_one({
+            collection.update_one({
                 "id": tweet_text["id"]},
                 {"$set": {
                     "epicosm." + candidate_inference + ".groundtruth_delta":

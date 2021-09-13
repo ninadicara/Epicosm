@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+from datetime import datetime
 import re
 import json
 import subprocess
@@ -113,27 +114,18 @@ def request_following_list(twitter_id, url):
         return 1
 
 
-
-
-
-
-
-
-
 def request_following_recents_response(twitter_id, params):
 
     """
-    !!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!
+    This builds and sends the API request to twitter - used to for getting
+    the recent tweets from those that are being followed by a user.
 
     CALLS:  connect_to_endpoint()
 
     ARGS:   the ID number for the user.
             the built url for API endpoint.
 
-    RETS:   the following list response as a JSON,
+    RETS:   The recent (<7 days) tweets of the followed user,
             OR 1 if there was an issue. Return value 1 is
             used as a trigger for the continue in the loop.
     """
@@ -145,7 +137,7 @@ def request_following_recents_response(twitter_id, params):
         following_response = connect_to_endpoint(url, params)
 
         if following_response["meta"]["result_count"] == 0:
-            print(f"No followings for {twitter_id}.")
+            print(f"No recent tweets for {twitter_id}.")
             return 1 #~ all "return 1"s are triggers to continue the harvest loop
 
         if "errors" in following_response:
@@ -168,22 +160,22 @@ def request_following_recents_response(twitter_id, params):
         return 1
 
 
-
-
-
-
-
-
-
-
 def following_list_harvest(db, collection):
 
     """
-    Builds the URL for requesting the user's following list,
-    and sends it to the Twitter API v2.
+    Gathers the list of users being followed by each user.
+    Adds these to the MongoDB collection "following"
 
-    ARGS: the name of the following collection, taken from env,
-          DB name
+    CALLS:  request_following_list
+            insert_to_mongodb
+
+    ARGS:   the name of the following collection, taken from env,
+            DB name
+
+    RETS:   Nothing, inserts the list of followers to MongoDB, in the
+            separate collection called "following". The id of the "follower"
+            (the original user) is appended to each record so they can be filtered
+            later (twitter API does not return this, only user details.)
     """
 
     with open("user_details.json", "r") as infile:
@@ -240,19 +232,18 @@ def following_list_harvest(db, collection):
     print(f"\nThe DB contains a total of {collection.count()} followings from {users_in_collection} users.")
 
 
-
-
-
-def followings_recent_tweets_harvest(db, collection):
+def pseudofeed_harvest(db, collection):
 
     """
     This is similar to the timeline harvest function, but is doing it for following lists.
-    It only takes tweets posted by followings which are less than 10 days old, rather than a full timeline.
+    It only takes tweets posted by followings which are less than 7 days old, rather than a full timeline.
+    It takes a max of 10 tweets (the minimum the API allows!), and I would take less because this already can
+    generate a MASSIVE block of stuff.
     If the following count of a user is large, this is going to be a long-running function.
 
     1.  Takes the user_details as a list of ids to loop through
     2.  Makes a list of FOLLOWINGS, for each user.
-    3.  Harvests from oldest date of ten days ago.
+    3.  Harvests from oldest date of seven days ago.
     4.  Inserts these to the DB, making a block of text assigned to a user
         this represents a "pseudofeed" of what they might be seeing in their true feed.
 
@@ -281,8 +272,12 @@ def followings_recent_tweets_harvest(db, collection):
         #~ loop over each user ID
         for user in user_details:
 
-            pseudo_feed = ""
+            pseudofeed = {}
+            pseudofeed_block = ""
             twitter_id = user["id"]
+            pseudofeed["user"] = twitter_id
+            timestamp = datetime.now().isoformat(timespec='seconds')
+            pseudofeed["timestamp"] = timestamp
 
             #~ check if we have this user in DB
             if collection.count_documents({"follower_id": twitter_id}) == 0:
@@ -304,25 +299,23 @@ def followings_recent_tweets_harvest(db, collection):
                 try:
                     api_response = request_following_recents_response(following_id, following_params)
                     if api_response == 1: #~ this "1" is an end-trigger from request_timeline_response
-                        print("api = 1")
                         continue
                     else: #~ extract the text field from the following's tweets
                         for tweet in api_response["data"]:
-                            pseudo_feed = pseudo_feed + tweet["text"]
-                        print(len(pseudo_feed))
+                            pseudofeed_block = pseudofeed_block + tweet["text"]
 
                 except TypeError as e:
                     print(e)
 
-            print(pseudo_feed)
-            print("would insert here")
-            #~ ok, we have the pseudofeed as a massive block,
-            #~ and we want to insert it into the DB.
-            #~ the DB at the moment is two collections: one of all tweets, one of all followings.
-            #~ we want a third collection, with a record for each user.
-            #~ this will just contain timestamped pseudofeed blocks, ready to be sentiment analysed
-            #     # insert_to_mongodb(api_response, collection)
+            #~ make pseudofeed into a 3pair dict: id, timestamp,
+            #~ and text (big block of what following have said in past 7 days)
+            print(f"Inserting pseudofeed tweet block of {len(pseudofeed_block)} characters.")
+            pseudofeed["text"] = pseudofeed_block
 
+            try:
+                db.pseudofeed.insert_one(pseudofeed)
+            except Exception as e:
+                print(e)
 
 
 

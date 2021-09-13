@@ -41,7 +41,7 @@ def args_setup():
       help="Harvest tweets from all users from a file called user_list (provided by you) with a single user per line.")
     parser.add_argument("--get_following", action="store_true",
       help="Create a database of the users that are being followed by the accounts in your user_list. (This process can be very slow, especially if your users are prolific followers.)")
-    parser.add_argument("--following_harvest", action="store_true",
+    parser.add_argument("--pseudofeed", action="store_true",
       help="Harvest recent tweets from the users being followed by a user. (This process can be very slow and take up a lot of storage, especially if your users are prolific followers.)")
     parser.add_argument("--repeat", action="store_true",
       help="Repeat the harvest every 72 hours. This process will need to be put to the background to free your terminal prompt.")
@@ -117,7 +117,7 @@ def main():
 
     #~ get tweets for each user and archive in mongodb
     if args.harvest:
-        twitter_ops.timeline_harvest_v2(mongodb_config.db, mongodb_config.collection)
+        twitter_ops.timeline_harvest(mongodb_config.db, mongodb_config.collection)
 
     #~ if user wants the following list, make it
     if args.get_following:
@@ -125,11 +125,9 @@ def main():
         sys.argv.remove("--get_following") #~ we only want to do this once
 
     #~ if we want to do the recent following stuff
-    if args.following_harvest:
-        following_ops.followings_recent_tweets_harvest(mongodb_config.db, mongodb_config.following_collection)
-        sys.argv.remove("--following_harvest") #~ we only want to do this once
-
-
+    if args.pseudofeed:
+        following_ops.pseudofeed_harvest(mongodb_config.db, mongodb_config.following_collection)
+        sys.argv.remove("--pseudofeed") #~ we only want to do this once
 
     #~ backup database into BSON
     mongo_ops.backup_db(mongodump_executable_path,
