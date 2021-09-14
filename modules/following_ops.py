@@ -25,6 +25,15 @@ except ModuleNotFoundError as e:
 bearer_token = bearer_token.token
 
 
+#~ FUNCTION LIST ~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~ bearer_oauth
+#~ connect_to_endpoint
+#~ request_following_list
+#~ request_following_recents_response
+#~ following_list_harvest
+#~ pseudofeed_harvest
+
+
 def bearer_oauth(r):
 
     """
@@ -67,7 +76,7 @@ def connect_to_endpoint(url, params):
     return response.json()
 
 
-def request_following_list(twitter_id, url):
+def request_following_list(twitter_id, url, params):
 
     """
     This is a modification of the request_timeline_response in twitter ops.
@@ -84,8 +93,6 @@ def request_following_list(twitter_id, url):
             used as a trigger for the continue in the loop.
     """
 
-    params = {"max_results": 1000}
-
     try:
 
         following_response = connect_to_endpoint(url, params)
@@ -100,7 +107,7 @@ def request_following_list(twitter_id, url):
 
         #~ each subfield in "data" is a tweet / following.
         if "data" not in following_response:
-            print(f"No data in response: {api_response}")
+            print(f"No data in response: {following_response}")
             return 1
 
         return following_response
@@ -146,7 +153,7 @@ def request_following_recents_response(twitter_id, params):
 
         #~ each subfield in "data" is a tweet / following.
         if "data" not in following_response:
-            print(f"No data in response: {api_response}")
+            print(f"No data in response: {following_response}")
             return 1
 
         return following_response
@@ -196,13 +203,14 @@ def following_list_harvest(db, collection):
 
             twitter_id = user["id"]
             url = f"https://api.twitter.com/2/users/{twitter_id}/following?"
+            params = {"max_results": 1000}
 
             print(f"Requesting {twitter_id} following list...")
-            api_response = request_following_list(twitter_id, url)
+            api_response = request_following_list(twitter_id, url, params)
 
             #~ request first 1000 followings
             if api_response == 1: #~ finished user, moving to next one
-                print(twitter_id, "followings count in DB:", following.count())
+                print(twitter_id, "followings count in DB:", collection.count())
                 continue
             else:
                 #~ assign new field with who we are harvesting to each following
@@ -214,7 +222,7 @@ def following_list_harvest(db, collection):
             try:
                 while "next_token" in api_response["meta"]:
                     params["pagination_token"] = api_response["meta"]["next_token"]
-                    api_response = request_api_response(twitter_id, url, params)
+                    api_response = request_following_list(twitter_id, url, params)
                     if api_response == 1: #~ "1" means "next"
                         continue
                     else:

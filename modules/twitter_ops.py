@@ -23,6 +23,15 @@ except ModuleNotFoundError as e:
 
 bearer_token = bearer_token.token
 
+#~ FUNCTION LIST ~~~~~~~~~~~~~~~~~~~~~~~~~
+#~ bearer_oauth
+#~ connect_to_endpoint
+#~ create_url
+#~ chunks
+#~ user_lookup
+#~ request_timeline_response
+#~ timeline_harvest
+#~ insert_to_mongodb
 
 def bearer_oauth(r):
 
@@ -93,7 +102,7 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-def user_lookup_v2():
+def user_lookup():
 
     """
     Takes a text file with one twitter username per line,
@@ -171,7 +180,7 @@ def request_timeline_response(twitter_id, timeline_params):
 
         #~ each subfield in "data" is a tweet / following.
         if "data" not in timeline_response:
-            print(f"No data in response: {api_response}")
+            print(f"No data in response: {timeline_response}")
             return 1
 
         return timeline_response
@@ -269,69 +278,69 @@ def timeline_harvest(db, collection):
     print(f"\nThe DB contains a total of {collection.count()} tweets from {users_in_collection} users.")
 
 
-def following_list_harvest(db, collection):
+# def following_list_harvest(db, collection):
 
-    """
-    Builds the URL for requesting the user's following list,
-    and sends it to the Twitter API v2.
+#     """
+#     Builds the URL for requesting the user's following list,
+#     and sends it to the Twitter API v2.
 
-    ARGS: the name of the following collection, taken from env,
-          DB name
-    """
+#     ARGS: the name of the following collection, taken from env,
+#           DB name
+#     """
 
-    with open("user_details.json", "r") as infile:
-        #~ load in the json of users
-        user_details = json.load(infile)
+#     with open("user_details.json", "r") as infile:
+#         #~ load in the json of users
+#         user_details = json.load(infile)
 
-        total_users = (len(user_details))
-        print(f"\nHarvesting following lists from {total_users} users...")
+#         total_users = (len(user_details))
+#         print(f"\nHarvesting following lists from {total_users} users...")
 
-        #~ we need a compound index here, since two people can follow the same user
-        #~ so, records where BOTH follower_id and id are the same are considered duplicates
-        collection.create_index([
-            ("follower_id", pymongo.ASCENDING),
-            ("id", pymongo.ASCENDING)], unique=True, dropDups=True)
+#         #~ we need a compound index here, since two people can follow the same user
+#         #~ so, records where BOTH follower_id and id are the same are considered duplicates
+#         collection.create_index([
+#             ("follower_id", pymongo.ASCENDING),
+#             ("id", pymongo.ASCENDING)], unique=True, dropDups=True)
 
-        #~ loop over each user ID
-        for user in user_details:
+#         #~ loop over each user ID
+#         for user in user_details:
 
-            params = {"max_results": 1000}
-            twitter_id = user["id"]
-            url = f"https://api.twitter.com/2/users/{twitter_id}/following?"
+#             params = {"max_results": 1000}
+#             twitter_id = user["id"]
+#             url = f"https://api.twitter.com/2/users/{twitter_id}/following?"
 
-            print(f"Requesting {twitter_id} following list...")
-            api_response = request_api_response(twitter_id, url, params)
+#             print(f"Requesting {twitter_id} following list...")
+#             api_response = request_api_response(twitter_id, url, params)
 
-            #~ request first 1000 followings
-            if api_response == 1: #~ finished user, moving to next one
-                print(twitter_id, "followings count in DB:", following.count())
-                continue
-            else:
-                #~ assign new field with who we are harvesting to each following
-                for following_item in api_response["data"]:
-                    following_item["follower_id"] = twitter_id
-                insert_to_mongodb(api_response, collection)
+#             #~ request first 1000 followings
+#             if api_response == 1: #~ finished user, moving to next one
+#                 print(twitter_id, "followings count in DB:", following.count())
+#                 continue
+#             else:
+#                 #~ assign new field with who we are harvesting to each following
+#                 for following_item in api_response["data"]:
+#                     following_item["follower_id"] = twitter_id
+#                 insert_to_mongodb(api_response, collection)
 
-            #~ we get a "next_token" if there are > 1000 followings.
-            try:
-                while "next_token" in api_response["meta"]:
-                    params["pagination_token"] = api_response["meta"]["next_token"]
-                    api_response = request_api_response(twitter_id, url, params)
-                    if api_response == 1: #~ "1" means "next"
-                        continue
-                    else:
-                        #~ assign new field with who we are harvesting to each following
-                        for following_item in api_response["data"]:
-                            following_item["follower_id"] = twitter_id
-                        insert_to_mongodb(api_response, collection)
+#             #~ we get a "next_token" if there are > 1000 followings.
+#             try:
+#                 while "next_token" in api_response["meta"]:
+#                     params["pagination_token"] = api_response["meta"]["next_token"]
+#                     api_response = request_api_response(twitter_id, url, params)
+#                     if api_response == 1: #~ "1" means "next"
+#                         continue
+#                     else:
+#                         #~ assign new field with who we are harvesting to each following
+#                         for following_item in api_response["data"]:
+#                             following_item["follower_id"] = twitter_id
+#                         insert_to_mongodb(api_response, collection)
 
-            except TypeError:
-                pass #~ api_response returned "1", so all done.
+#             except TypeError:
+#                 pass #~ api_response returned "1", so all done.
 
-            print(twitter_id, "followings count in DB:", collection.count_documents({"follower_id": twitter_id}))
+#             print(twitter_id, "followings count in DB:", collection.count_documents({"follower_id": twitter_id}))
 
-    users_in_collection = len(collection.distinct("follower_id"))
-    print(f"\nThe DB contains a total of {collection.count()} followings from {users_in_collection} users.")
+#     users_in_collection = len(collection.distinct("follower_id"))
+#     print(f"\nThe DB contains a total of {collection.count()} followings from {users_in_collection} users.")
 
 
 def insert_to_mongodb(api_response, collection):

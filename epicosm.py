@@ -26,11 +26,12 @@ from modules import (
     following_ops,
     env_config,
     mongodb_config)
-
-#~ "bearer_token.py", see readme for details.
-#~ your bearer token will need to be in the local run folder
-import bearer_token
-bearer_token = bearer_token.token
+try:
+    import bearer_token
+    bearer_token = bearer_token.token
+except ModuleNotFoundError as e:
+    print("Your bearer_token.py doesn't seem to be here. Please see documentation for help.")
+    sys.exit(1)
 
 
 def args_setup():
@@ -59,11 +60,6 @@ def args_setup():
     args = parser.parse_args()
 
     return parser, args
-
-
-client = pymongo.MongoClient("localhost", 27017)
-db = client.twitter_db
-collection = db.tweets
 
 
 def main():
@@ -113,7 +109,7 @@ def main():
 
     #~ get persistent user ids from screen names
     if args.refresh or not os.path.exists(env.run_folder + "/user_details.json"):
-        twitter_ops.user_lookup_v2()
+        twitter_ops.user_lookup()
 
     #~ get tweets for each user and archive in mongodb
     if args.harvest:
@@ -122,12 +118,10 @@ def main():
     #~ if user wants the following list, make it
     if args.get_following:
         following_ops.following_list_harvest(mongodb_config.db, mongodb_config.following_collection)
-        sys.argv.remove("--get_following") #~ we only want to do this once
 
     #~ if we want to do the recent following stuff
     if args.pseudofeed:
         following_ops.pseudofeed_harvest(mongodb_config.db, mongodb_config.following_collection)
-        sys.argv.remove("--pseudofeed") #~ we only want to do this once
 
     #~ backup database into BSON
     mongo_ops.backup_db(mongodump_executable_path,
