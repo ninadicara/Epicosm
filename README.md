@@ -20,6 +20,7 @@ and integrate social media data with existing longitudinal and cohort-study rese
 The tools can:
 * Harvest ongoing and retrospective Tweets from a list of users.
 * Real-time Twitter stream-listen from geographic locations, and collate into a database.
+* Harvest a "pseudofeed" of users - the recent tweets of the accounts being followed.
 * Sentiment analysis of Tweets using labMT, Vader and LIWC (dictionary required for LIWC).
 * [in development] Validation of sentiment analysis algorithms against groundtruth.
 
@@ -30,13 +31,14 @@ The tools can:
   * In a Mac terminal `brew install mongodb`
   * In a Linux terminal `apt install mongodb`
 
-#### 3. Put these three files into a folder:
-  * `epicosm_mac` OR `epicosm_linux`, as downloaded from the repository in step `1`,
-  * `credentials.txt` file (provided here, but complete with [your own Twitter access keys](https://github.com/DynamicGenetics/Epicosm/blob/master/Twitter_Authorisation.pdf)),  
-  * and your `user_list` (supplied by you: one screen name per line, plain text file).
+#### 3. Provide your Twitter API authorisation token:
+  * Complete the `bearer_token.py` file with your own bearer token. You will need to acquire a Twitter developer account, so please search for the current details on how to do that. Epicosm functions best with an approved academic developer account, which grants access to the `full archive` v2API, allowing complete timelines to be recovered. Search for current documentation on how to do this on the [Twitter Developer portal](https://developer.twitter.com/en).
 
-#### 4. Run Epicosm from your command line, including your run flags
-  * Epicosm will provide some help if it doesn't understand you, just type `./epicosm_linux` or `./epicosm_mac`. See below for more details, but for example a typical harvest can be started with
+#### 4. Install the required Python packages:
+  * In the repository folder, run `pip install -r requirements.txt`. If you get any errors with this command, make sure you are running Python version 3.
+
+#### 5. Run Epicosm from your command line, including your run flags
+  * Epicosm will provide some help if it doesn't understand you, just type `python ` or `./epicosm_mac`. See below for more details, but for example a typical harvest can be started with
 `./epicosm_linux --user_harvest`
 
 <p align="center"> ••• </p>
