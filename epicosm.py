@@ -23,7 +23,7 @@ from modules import (
     mongo_ops,
     epicosm_meta,
     twitter_ops,
-    following_ops,
+    follows_ops,
     env_config,
     mongodb_config)
 try:
@@ -40,7 +40,7 @@ def args_setup():
                                      epilog="Example: python3 epicosm.py --harvest --repeat")
     parser.add_argument("--harvest", action="store_true",
       help="Harvest tweets from all users from a file called user_list (provided by you) with a single user per line.")
-    parser.add_argument("--get_following", action="store_true",
+    parser.add_argument("--get_follows", action="store_true",
       help="Create a database of the users that are being followed by the accounts in your user_list. (This process can be very slow, especially if your users are prolific followers.)")
     parser.add_argument("--pseudofeed", action="store_true",
       help="Harvest recent tweets from the users being followed by a user. (This process can be very slow and take up a lot of storage, especially if your users are prolific followers.)")
@@ -115,13 +115,13 @@ def main():
     if args.harvest:
         twitter_ops.timeline_harvest(mongodb_config.db, mongodb_config.collection)
 
-    #~ if user wants the following list, make it
-    if args.get_following:
-        following_ops.following_list_harvest(mongodb_config.db, mongodb_config.following_collection)
+    #~ if user wants the follows list, make it
+    if args.get_follows:
+        follows_ops.follows_list_harvest(mongodb_config.db, mongodb_config.follows_collection)
 
-    #~ if we want to do the recent following stuff
+    #~ if we want to do the recent follows stuff
     if args.pseudofeed:
-        following_ops.pseudofeed_harvest(mongodb_config.db, mongodb_config.following_collection)
+        follows_ops.pseudofeed_harvest(mongodb_config.db, mongodb_config.follows_collection)
 
     #~ backup database into BSON
     mongo_ops.backup_db(mongodump_executable_path,

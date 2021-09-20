@@ -13,6 +13,7 @@ import liwc
 from textblob import TextBlob
 
 #~ Local application imports
+sys.path.append("./modules")
 from modules import (
     mongo_ops,
     epicosm_meta,

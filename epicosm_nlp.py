@@ -57,9 +57,6 @@ def main():
             parser.print_help()
             sys.exit(0)
 
-    #~ check running method
-    epicosm_meta.native_or_compiled()
-
     #~ check environment
     mongod_executable_path, mongoexport_executable_path, mongodump_executable_path = epicosm_meta.check_env()
 
@@ -68,6 +65,9 @@ def main():
 
     #~ set collection name
     if args.pseudofeed:
+        if not any([args.labmt, args.liwc, args.textblob, args.vader]):
+            print(f"Please specify algorithm(s): --labmt --liwc --textblob --vader")
+            sys.exit(1)
         collection = mongodb_config.pseudofeed_collection
     else:
         collection = mongodb_config.collection

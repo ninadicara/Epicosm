@@ -28,9 +28,9 @@ bearer_token = bearer_token.token
 #~ FUNCTION LIST ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ bearer_oauth
 #~ connect_to_endpoint
-#~ request_following_list
-#~ request_following_recents_response
-#~ following_list_harvest
+#~ request_follows_list
+#~ request_follows_recents_response
+#~ follows_list_harvest
 #~ pseudofeed_harvest
 
 
@@ -76,7 +76,7 @@ def connect_to_endpoint(url, params):
     return response.json()
 
 
-def request_following_list(twitter_id, url, params):
+def request_follows_list(twitter_id, url, params):
 
     """
     This is a modification of the request_timeline_response in twitter ops.
@@ -88,29 +88,29 @@ def request_following_list(twitter_id, url, params):
     ARGS:   the ID number for the user.
             the built url for API endpoint.
 
-    RETS:   the following list response as a JSON,
+    RETS:   the follows list response as a JSON,
             OR 1 if there was an issue. Return value 1 is
             used as a trigger for the continue in the loop.
     """
 
     try:
 
-        following_response = connect_to_endpoint(url, params)
+        follows_response = connect_to_endpoint(url, params)
 
-        if following_response["meta"]["result_count"] == 0:
-            print(f"No recent tweets from following {twitter_id}.")
+        if follows_response["meta"]["result_count"] == 0:
+            print(f"No recent tweets from follow {twitter_id}.")
             return 1 #~ all "return 1"s are triggers to continue the harvest loop
 
-        if "errors" in following_response:
-            print(f"Problem on {twitter_id} :", following_response["title"])
+        if "errors" in follows_response:
+            print(f"Problem on {twitter_id} :", follows_response["title"])
             return 1
 
-        #~ each subfield in "data" is a tweet / following.
-        if "data" not in following_response:
-            print(f"No data in response: {following_response}")
+        #~ each subfield in "data" is a tweet / follow.
+        if "data" not in follows_response:
+            print(f"No data in response: {follows_response}")
             return 1
 
-        return following_response
+        return follows_response
 
     except RequestException:
         print(f"Rate limited even after cooldown on {twitter_id}. Moving on...")
@@ -121,7 +121,7 @@ def request_following_list(twitter_id, url, params):
         return 1
 
 
-def request_following_recents_response(twitter_id, params):
+def request_follows_recents_response(twitter_id, params):
 
     """
     This builds and sends the API request to twitter - used to for getting
@@ -141,22 +141,22 @@ def request_following_recents_response(twitter_id, params):
 
     try:
 
-        following_response = connect_to_endpoint(url, params)
+        follows_response = connect_to_endpoint(url, params)
 
-        if following_response["meta"]["result_count"] == 0:
+        if follows_response["meta"]["result_count"] == 0:
             print(f"No recent tweets for {twitter_id}.")
             return 1 #~ all "return 1"s are triggers to continue the harvest loop
 
-        if "errors" in following_response:
-            print(f"Problem on {twitter_id} :", following_response["title"])
+        if "errors" in follows_response:
+            print(f"Problem on {twitter_id} :", follows_response["title"])
             return 1
 
-        #~ each subfield in "data" is a tweet / following.
-        if "data" not in following_response:
-            print(f"No data in response: {following_response}")
+        #~ each subfield in "data" is a tweet / follow.
+        if "data" not in follows_response:
+            print(f"No data in response: {follows_response}")
             return 1
 
-        return following_response
+        return follows_response
 
     except RequestException:
         print(f"Rate limited even after cooldown on {twitter_id}. Moving on...")
@@ -167,20 +167,20 @@ def request_following_recents_response(twitter_id, params):
         return 1
 
 
-def following_list_harvest(db, collection):
+def follows_list_harvest(db, collection):
 
     """
     Gathers the list of users being followed by each user.
-    Adds these to the MongoDB collection "following"
+    Adds these to the MongoDB collection "follows"
 
-    CALLS:  request_following_list
+    CALLS:  request_follows_list
             insert_to_mongodb
 
-    ARGS:   the name of the following collection, taken from env,
+    ARGS:   the name of the follows collection, taken from env,
             DB name
 
     RETS:   Nothing, inserts the list of followers to MongoDB, in the
-            separate collection called "following". The id of the "follower"
+            separate collection called "follows". The id of the "follower"
             (the original user) is appended to each record so they can be filtered
             later (twitter API does not return this, only user details.)
     """
@@ -190,7 +190,7 @@ def following_list_harvest(db, collection):
         user_details = json.load(infile)
 
         total_users = (len(user_details))
-        print(f"\nHarvesting following lists from {total_users} users...")
+        print(f"\nHarvesting follows lists from {total_users} users...")
 
         #~ we need a compound index here, since two people can follow the same user
         #~ so, records where BOTH follower_id and id are the same are considered duplicates
@@ -205,52 +205,52 @@ def following_list_harvest(db, collection):
             url = f"https://api.twitter.com/2/users/{twitter_id}/following?"
             params = {"max_results": 1000}
 
-            print(f"Requesting {twitter_id} following list...")
-            api_response = request_following_list(twitter_id, url, params)
+            print(f"Requesting {twitter_id} follows list...")
+            api_response = request_follows_list(twitter_id, url, params)
 
-            #~ request first 1000 followings
+            #~ request first 1000 follows
             if api_response == 1: #~ finished user, moving to next one
-                print(twitter_id, "followings count in DB:", collection.count())
+                print(twitter_id, "follows count in DB:", collection.count())
                 continue
             else:
-                #~ assign new field with who we are harvesting to each following
-                for following_item in api_response["data"]:
-                    following_item["follower_id"] = twitter_id
+                #~ assign new field with who we are harvesting to each follow
+                for follow_item in api_response["data"]:
+                    follow_item["follower_id"] = twitter_id
                 insert_to_mongodb(api_response, collection)
 
-            #~ we get a "next_token" if there are > 1000 followings.
+            #~ we get a "next_token" if there are > 1000 follows.
             try:
                 while "next_token" in api_response["meta"]:
                     params["pagination_token"] = api_response["meta"]["next_token"]
-                    api_response = request_following_list(twitter_id, url, params)
+                    api_response = request_follows_list(twitter_id, url, params)
                     if api_response == 1: #~ "1" means "next"
                         continue
                     else:
-                        #~ assign new field with who we are harvesting to each following
-                        for following_item in api_response["data"]:
-                            following_item["follower_id"] = twitter_id
+                        #~ assign new field with who we are harvesting to each follow
+                        for follow_item in api_response["data"]:
+                            follow_item["follower_id"] = twitter_id
                         insert_to_mongodb(api_response, collection)
 
             except TypeError:
                 pass #~ api_response returned "1", so all done.
 
-            print(twitter_id, "followings count in DB:", collection.count_documents({"follower_id": twitter_id}))
+            print(twitter_id, "follows count in DB:", collection.count_documents({"follower_id": twitter_id}))
 
     users_in_collection = len(collection.distinct("follower_id"))
-    print(f"\nThe DB contains a total of {collection.count()} followings from {users_in_collection} users.")
+    print(f"\nThe DB contains a total of {collection.count()} follows from {users_in_collection} users.")
 
 
 def pseudofeed_harvest(db, collection):
 
     """
-    This is similar to the timeline harvest function, but is doing it for following lists.
-    It only takes tweets posted by followings which are less than 7 days old, rather than a full timeline.
+    This is similar to the timeline harvest function, but is doing it for follow lists.
+    It only takes tweets posted by follows which are less than 7 days old, rather than a full timeline.
     It takes a max of 10 tweets (the minimum the API allows!), and I would take less because this already can
     generate a MASSIVE block of stuff.
-    If the following count of a user is large, this is going to be a long-running function.
+    If the follow count of a user is large, this is going to be a long-running function.
 
     1.  Takes the user_details as a list of ids to loop through
-    2.  Makes a list of FOLLOWINGS, for each user.
+    2.  Makes a list of FOLLOws, for each user.
     3.  Harvests from oldest date of seven days ago.
     4.  Inserts these to the DB, making a block of text assigned to a user
         this represents a "pseudofeed" of what they might be seeing in their true feed.
@@ -265,9 +265,9 @@ def pseudofeed_harvest(db, collection):
             collection name (set in epicosm.py)
     """
 
-    if "following" not in db.list_collection_names():
-        print(f"\nThere doesn't appear to be a collection of followings here.")
-        print(f"(You will need to run the flag --get_following before doing a following harvest.)")
+    if "follows" not in db.list_collection_names():
+        print(f"\nThere doesn't appear to be a collection of follows here.")
+        print(f"(You will need to run the flag --get_follows before doing a follows harvest.)")
         return
 
     with open("user_details.json", "r") as infile:
@@ -275,7 +275,7 @@ def pseudofeed_harvest(db, collection):
         user_details = json.load(infile)
 
         total_users = (len(user_details))
-        print(f"\nHarvesting following's recents from {total_users} users...")
+        print(f"\nHarvesting follows' recents from {total_users} users...")
 
         #~ loop over each user ID
         for user in user_details:
@@ -292,23 +292,23 @@ def pseudofeed_harvest(db, collection):
                 print(f"{twitter_id} follows are not in the database. Skipping.")
                 continue
 
-            #~ make a list of all FOLLOWINGS from MongoDB, for this user
-            following_ids = collection.find({"follower_id": twitter_id}).distinct("id")
+            #~ make a list of all FOLLOws from MongoDB, for this user
+            follow_ids = collection.find({"follower_id": twitter_id}).distinct("id")
 
-            for following_id in following_ids:
+            for follow_id in follow_ids:
 
-                following_params = {
-                    "query": f"(from:{following_id})",
+                follow_params = {
+                    "query": f"(from:{follow_id})",
                     "tweet.fields": "id,author_id,created_at,text",
                     "max_results": 10} #~ the minimum!
 
                 #~ send the request for the first 500 tweets and insert to mongodb
-                print(f"Requesting recents for followed user {following_id}...")
+                print(f"Requesting recents for followed user {follow_id}...")
                 try:
-                    api_response = request_following_recents_response(following_id, following_params)
+                    api_response = request_follows_recents_response(follow_id, follow_params)
                     if api_response == 1: #~ this "1" is an end-trigger from request_timeline_response
                         continue
-                    else: #~ extract the text field from the following's tweets
+                    else: #~ extract the text field from the follow's tweets
                         for tweet in api_response["data"]:
                             pseudofeed_block = pseudofeed_block + tweet["text"]
 
@@ -316,8 +316,9 @@ def pseudofeed_harvest(db, collection):
                     print(e)
 
             #~ make pseudofeed into a 3pair dict: id, timestamp,
-            #~ and text (big block of what following have said in past 7 days)
-            print(f"Inserting pseudofeed tweet block of {len(pseudofeed_block)} characters.")
+            #~ and text (big block of what follows have said in past 7 days)
+            word_count = len(pseudofeed_block.strip().split(" "))
+            print(f"Inserting pseudofeed tweet block of ~{word_count} words.")
             pseudofeed["text"] = pseudofeed_block
 
             try:
