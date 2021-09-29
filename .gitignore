@@ -13,3 +13,10 @@ user_details.json
 user_errors.json
 output
 LIWC.dic
+65k_random_words
+.gitignore
+text1.json
+text2.json
+.gitignore
+.gitignore
+bench1
