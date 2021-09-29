@@ -121,7 +121,7 @@ def liwc_runner(text):
 
 def main():
 
-    with open("text1.json", "r") as infile:
+    with open("65k_random_words", "r") as infile:
 
         text = infile.read()
 
