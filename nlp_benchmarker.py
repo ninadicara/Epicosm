@@ -28,7 +28,7 @@ from modules import (
 
 def vader_runner(text):
 
-    print(f"Vader sentiment, analysing...")
+    # print(f"Vader sentiment, analysing...")
 
     #~ initialise analyser
     analyser = vader_sentiment.SentimentIntensityAnalyzer()
@@ -47,7 +47,7 @@ def vader_runner(text):
 
 def labmt_runner(text):
 
-    print(f"labMT sentiment, analysing...")
+    # print(f"labMT sentiment, analysing...")
 
     lang = "english"
     labMT, labMTvector, labMTwordList = labmt.emotionFileReader(stopval=0.0, lang=lang, returnVector=True)
@@ -74,7 +74,7 @@ def labmt_runner(text):
 
 def textblob_runner(text):
 
-    print(f"TextBlob sentiment, analysing...")
+    # print(f"TextBlob sentiment, analysing...")
 
     #~ we want textblob to ignore sentences and take tweets as a whole
     text_clean = text.replace(".", " ")
@@ -105,7 +105,7 @@ def liwc_runner(text):
         for match in re.finditer(r"\w+", text, re.UNICODE):
             yield match.group(0)
 
-    print(f"LIWC sentiment, analysing...")
+    # print(f"LIWC sentiment, analysing...")
 
     parse, category_names = liwc.load_token_parser(dictionary)
 
@@ -125,28 +125,52 @@ def main():
 
         text = infile.read()
 
+        words1000 = " ".join(text.split()[:1000])
+        words2000 = " ".join(text.split()[:2000])
+        words3000 = " ".join(text.split()[:3000])
+        words4000 = " ".join(text.split()[:4000])
+        words5000 = " ".join(text.split()[:5000])
+        words6000 = " ".join(text.split()[:6000])
+        words7000 = " ".join(text.split()[:7000])
+        words8000 = " ".join(text.split()[:8000])
+        words9000 = " ".join(text.split()[:9000])
+        words10000 = " ".join(text.split()[:10000])
+        words15000 = " ".join(text.split()[:15000])
         words100 = " ".join(text.split()[:100])
-        words200 = " ".join(text.split()[:200])
-        words400 = " ".join(text.split()[:400])
-        words800 = " ".join(text.split()[:800])
-        words1600 = " ".join(text.split()[:1600])
-        words3200 = " ".join(text.split()[:3200])
-        words6400 = " ".join(text.split()[:6400])
-        words12800 = " ".join(text.split()[:12800])
-        words25600 = " ".join(text.split()[:25600])
-        words51200 = " ".join(text.split()[:51200])
+        # words200 = " ".join(text.split()[:200])
+        # words400 = " ".join(text.split()[:400])
+        # words800 = " ".join(text.split()[:800])
+        # words1600 = " ".join(text.split()[:1600])
+        # words3200 = " ".join(text.split()[:3200])
+        # words6400 = " ".join(text.split()[:6400])
+        # words12800 = " ".join(text.split()[:12800])
+        # words25600 = " ".join(text.split()[:25600])
+        # words51200 = " ".join(text.split()[:51200])
 
         testset_list = [
-            words100,
-            words200,
-            words400,
-            words800,
-            words1600,
-            words3200,
-            words6400,
-            words12800,
-            words25600,
-            words51200]
+            words1000,
+            words2000,
+            words3000,
+            words4000,
+            words5000,
+            words6000,
+            words7000,
+            words8000,
+            words9000,
+            words10000,
+            words15000]
+
+        # testset_list = [
+        #     words100,
+        #     words200,
+        #     words400,
+        #     words800,
+        #     words1600,
+        #     words3200,
+        #     words6400,
+        #     words12800,
+        #     words25600,
+        #     words51200]
 
         method_list = [
             vader_runner,
@@ -156,14 +180,34 @@ def main():
 
         for method in method_list:
 
-            for testset in testset_list:
+            print(method.__name__)
 
-                print(f"{len(testset.split())} words")
-                start_time = time.time()
+            start_time = time.time()
 
-                method(testset)
+            for x in range(0, 100):
 
-                print(time.time() - start_time, "s")
+                # print(f"{len(testset.split())} words")
+
+                method(words100)
+
+            print(time.time() - start_time)
+
+            start_time = time.time()
+            method(words10000)
+            print(time.time() - start_time)
+
+        # for method in method_list:
+
+        #     print(method)
+
+        #     for testset in testset_list:
+
+        #         # print(f"{len(testset.split())} words")
+        #         start_time = time.time()
+
+        #         method(testset)
+
+        #         print(time.time() - start_time)
 
 
 
