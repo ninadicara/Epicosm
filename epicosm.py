@@ -81,9 +81,7 @@ def main():
         subprocess.call(["pkill", "-15", "-f", "epicosm"])
         sys.exit(0)
 
-    #~ check running method
-    epicosm_meta.native_or_compiled()
-
+    print(f"Running Epicosm with Python version {sys.version}.")
     #~ check environment
     (mongod_executable_path, mongoexport_executable_path,
     mongodump_executable_path) = epicosm_meta.check_env()

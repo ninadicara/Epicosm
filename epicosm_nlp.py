@@ -65,8 +65,11 @@ def main():
 
     #~ set collection name
     if args.pseudofeed:
-        if not any([args.labmt, args.liwc, args.textblob, args.vader]):
-            print(f"Please specify algorithm(s): --labmt --liwc --textblob --vader")
+        if args.vader:
+            print(f"VADER cannot process large text blocks. Stopping.")
+            sys.exit(1)
+        if not any([args.labmt, args.liwc, args.textblob]):
+            print(f"Please specify algorithm(s): --labmt --liwc --textblob")
             sys.exit(1)
         collection = mongodb_config.pseudofeed_collection
     else:

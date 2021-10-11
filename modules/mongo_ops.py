@@ -52,7 +52,7 @@ def start_mongo(mongod_executable_path, db_path, db_log_filename, epicosm_log_fi
     """
 
 
-    print(f"Starting the MongoDB daemon...")
+    print(f"\nStarting the MongoDB daemon...")
     try:
         subprocess.Popen([mongod_executable_path, "--dbpath",
                           db_path, "--logpath", db_log_filename],
@@ -61,6 +61,8 @@ def start_mongo(mongod_executable_path, db_path, db_log_filename, epicosm_log_fi
     except subprocess.CalledProcessError as e:
         print(f"Problem starting MongoDB:", e.output)
         sys.exit(1)
+
+    print(f"MongoDB running, DB path: {db_path}")
 
 
 def stop_mongo(dbpath):
@@ -94,7 +96,7 @@ def index_mongo(run_folder):
 
     if not os.path.isfile(run_folder + "/db/WiredTiger"):
         return
-    print(f"Indexing MongoDB...")
+    print(f"\nIndexing MongoDB...")
     db.tweets.create_index([("author_id", pymongo.ASCENDING)],
                            unique=False, dropDups=False)
 
