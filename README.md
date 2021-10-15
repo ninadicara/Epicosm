@@ -14,7 +14,7 @@
 
 
 ## Overview
-Epicosm: Epidemiology of Cohort Social Media. 
+Epicosm: a framework for linking online social media in epidemiological cohorts. 
 Epicosm is a suite of tools for working with social media data in the context of
 epidemiological research. It is aimed for use by epidemiologists who wish to gather, analyse
 and integrate social media data with existing longitudinal and cohort-study research.
@@ -35,23 +35,23 @@ The tools can:
   * Complete the `bearer_token.py` file with your own bearer token. You will need to acquire a Twitter developer account, so please search for the current details on how to do that. Epicosm functions best with an approved academic developer account, which grants access to the `full archive` v2API, allowing complete timelines to be recovered. Search for current documentation on how to do this on the [Twitter Developer portal](https://developer.twitter.com/en).
 
 #### 4. Install the required Python packages:
-  * We recommend running Epicosm in a clean python virtual environment. On the command line you can do this with `python -m venv ./venv`, and then using these fresh Python file, with `source ./venv/bin/activate`. You can then happily bring in the required module with `pip install -r requirements.txt`. 
+  * We recommend running Epicosm in a clean python virtual environment. On the command line you can create one with `python -m venv ./venv`, and then using these fresh Python file, with `source ./venv/bin/activate`. You can then bring in Epicosm's required modules with `pip install -r requirements.txt`. 
 
 #### 5. Run Epicosm from your command line, including your run flags
   * Epicosm will provide some help if it doesn't understand you, or just type `python epicosm.py` for usage and documentation. See below for more details, but for example a typical harvest can be started with
+
 `python epicosm.py --harvest`
 
 <p align="center"> ••• </p>
 
 ## More detail
 #### 1 What does it do?  
-#### 2 Running Epicosm from compiled python executable
+#### 2 Running the Python scripts
 #### 3 Optional parameters
 #### 4 Natural Language Processing (Sentiment analysis)
 #### 5 Geoharvester
 #### 6 Data and other outputs
-#### 7 Running the python script manually
-#### 8 Licence
+#### 7 Licence
 
 <p align="center"> ••• </p>
 
@@ -67,21 +67,7 @@ Epicosm uses [MongoDB](https://www.mongodb.com/) for data management, and this m
 
 <p align="center"> ••• </p>
 
-### 2 Running Epicosm from compiled python executable
-
-This is the usual way of running Epicosm (see section 4 for running using Python).
-
-You must provide 2 further files in the folder with the Epicosm executable:
-1. a list of user screen names in a file called `user_list`. The user list must be a plain text file, with a single username (twitter screen name) per line.
-2. Twitter API credentials. Please see the file in this repository for a template. This file must be called `credentials.txt`.
-
-Then you can run the python executable, for example
-`./epicosm_linux [your run flags]` or
-`./epicosm_mac [your run flags]`
-
-<p align="center"> ••• </p>
-
-### 7 Running the Python scripts
+### 2 Running the Python scripts
 
 `epicosm.py` is the harvesting script.
 `python epicosm.py [your run flags]`
@@ -105,35 +91,25 @@ Please also see these further requirements.
 ### 3 Optional parameters
 When running the harvester, please specify what you want Epicosm to do:
 
-`--user_harvest`        Harvest tweets from all users from a file called user_list
-                      (provided by you) with a single user per line. The database will be
-                      backed up on every harvest, with a rotating backup of the last three
-                      harvests. These can be imported into another instance of MongoDB
-                      with `mongoimport`, see MongoDB documentation for details.
-
-`--get_friends`.        Create a database of the users that are
-                      being followed by the accounts in your user_list.
-                      (This process can be very slow, especially if
-                      your users are prolific followers.) You will also get
-                      a CSV of users and who they are following, in `/output/csv`
-                      If using with --repeat, will only be gathered once.
-
-`--repeat`              Iterate the user harvest every 3 days. This process will need to
-                      be put to the background to free your terminal prompt,
-                      or to leave running while logged out.
-
-`--refresh`             If you have a new user_list, this will tell Epicosm to
-                      take use this file as your updated user list.
-
-`--csv_snapshots`       Make a CSV formatted snapshot of selected fields from every harvest.
-                      See documentation for the format and fields of this CSV.
-                      Be aware that this may take up disk space - see ./output/csv
+```
+  --harvest      Harvest tweets from all users from a file called user_list (provided by you) with a single user per line.
+  --get_follows  Create a database of the users that are being followed by the accounts in your user_list. (This process can be very slow, especially if your
+                 users are prolific followers.)
+  --pseudofeed   Harvest recent tweets from the users being followed by a user. (This process can be very slow and take up a lot of storage, especially if
+                 your users are prolific followers.)
+  --repeat       Repeat the harvest every . This process will need to be put to the background to free your terminal prompt.
+  --refresh      If you have a new user_list, this will tell Epicosm to switch to this list.
+  --start_db     Start the MongoDB daemon in this folder, but don't run any Epicosm processes.
+  --stop         Stop all Epicosm processes.
+  --shutdown_db  Stop all Epicosm processes and shut down MongoDB.
+  --log          Create a logfile rather than printing progress to console.
+```
 
 Example of single harvest:
-`./epicosm --user_harvest`
+`./epicosm --harvest`
 
-Example iterated harvest in background, with a renewed user_list and taking CSV snapshots:
-`nohup ./epicosm --user_harvest --refresh --csv_snapshots --repeat &`
+Example iterated harvest in background, with a renewed user_list:
+`nohup ./epicosm --harvest --refresh --repeat &`
 
 ### 4 Natural Language Processing (Sentiment analysis)
 
@@ -180,7 +156,7 @@ To view and interact with the database using a GUI, you will need MongoDB instal
 
 <p align="center"> ••• </p>
 
-### 8 Licence
+### 7 Licence
 DynamicGenetics/Epicosm is licensed under the GNU General Public License v3.0. For full details, please see our [license](https://github.com/DynamicGenetics/Epicosm/blob/master/LICENSE) file. 
 
 Epicosm is written and maintained by [Alastair Tanner](https://github.com/altanner), University of Bristol, Integrative Epidemiology Unit.
