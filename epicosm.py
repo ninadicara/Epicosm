@@ -44,8 +44,8 @@ def args_setup():
       help="Create a database of the users that are being followed by the accounts in your user_list. (This process can be very slow, especially if your users are prolific followers.)")
     parser.add_argument("--pseudofeed", action="store_true",
       help="Harvest recent tweets from the users being followed by a user. (This process can be very slow and take up a lot of storage, especially if your users are prolific followers.)")
-    parser.add_argument("--repeat", action="store_true",
-      help="Repeat the harvest every 72 hours. This process will need to be put to the background to free your terminal prompt.")
+    parser.add_argument("--repeat", action="store", type=int,
+      help="Repeat the harvest every given number of days. This process will need to be put to the background to free your terminal prompt.")
     parser.add_argument("--refresh", action="store_true",
       help="If you have a new user_list, this will tell Epicosm to switch to this list.")
     parser.add_argument("--start_db", action="store_true",
@@ -138,7 +138,7 @@ def main():
         subprocess.call(["rm", bu_list[0]])
         subprocess.call(["rm", bu_list[1]])
 
-    print(f"Scheduled task finished at {datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.\n")
+    print(f"Job finished at {datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.\n")
 
 
 if __name__ == "__main__":
@@ -146,11 +146,14 @@ if __name__ == "__main__":
     parser, args = args_setup()
 
     if args.repeat:
+
         main()
-        schedule.every(3).days.at("06:00").do(main)
+        schedule.every(args.repeat).minutes.do(main)
+
         while True:
             schedule.run_pending()
             time.sleep(15)
+
     else:
         main()
 

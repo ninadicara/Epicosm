@@ -51,11 +51,11 @@ def main():
     except subprocess.CalledProcessError:
         print(f"MongoDB does not appear to be running here. You can start MongoDB with")
         print(f"python3 epicosm.py --start_db")
-        sys.exit(0)
+        sys.exit(1)
 
     if len(sys.argv) < 2:
             parser.print_help()
-            sys.exit(0)
+            sys.exit(1)
 
     #~ check environment
     mongod_executable_path, mongoexport_executable_path, mongodump_executable_path = epicosm_meta.check_env()
