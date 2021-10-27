@@ -74,11 +74,12 @@ def main():
 
     if args.stop or args.shutdown_db:
 
+        print(f"OK, stopping Epicosm processes.")
+        subprocess.call(["pkill", "-15", "-f", "epicosm"])
+
         if args.shutdown_db:
             mongo_ops.stop_mongo(env.db_path)
 
-        print(f"OK, stopping Epicosm processes.")
-        subprocess.call(["pkill", "-15", "-f", "epicosm"])
         sys.exit(0)
 
     print(f"Running Epicosm with Python version {sys.version}.")
