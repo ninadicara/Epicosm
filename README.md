@@ -36,17 +36,16 @@ The tools can:
 
 #### 4. Install the required Python packages:
   * We recommend running Epicosm in a clean python virtual environment. On the command line you can create a new virtual environment with 
-`python -m venv ./venv`
+```python -m venv ./venv```
 then activate this clean environment with
-`source ./venv/bin/activate`
+```source ./venv/bin/activate```
 and finally install the required dependencies with
-`pip install -r requirements.txt`
+```pip install -r requirements.txt```
 You are now ready to run Epicosm. To leave your Python virtual environment, type `deactivate`.
 
 #### 5. Run Epicosm from your command line, including your run flags
   * Epicosm will provide some help if it doesn't understand you, or just type `python epicosm.py` for usage and documentation. See below for more details, but for example a typical harvest can be started with
-
-`python epicosm.py --harvest`
+```python epicosm.py --harvest```
 
 <p align="center"> ••• </p>
 
