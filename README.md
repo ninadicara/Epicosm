@@ -32,10 +32,10 @@ The tools can:
   * In a Linux terminal `apt install mongodb`
 
 #### 3. Provide your Twitter API authorisation token:
-  * Complete the `bearer_token.py` file with your own bearer token. You will need to acquire a Twitter developer account, so please search for the current details on how to do that. Epicosm functions best with an approved academic developer account, which grants access to the `full archive` v2API, allowing complete timelines to be recovered. Search for current documentation on how to do this on the [Twitter Developer portal](https://developer.twitter.com/en).
+  * Complete the `bearer_token.py` file with your own bearer token. You will need to acquire a Twitter developer account, so please search for the current details on how to do that. Epicosm functions best with an approved academic developer account, which grants access to the `full archive` v2API, allowing complete timelines to be recovered. Search for current documentation on how to do this on the [Twitter Developer Portal](https://developer.twitter.com/en).
 
 #### 4. Install the required Python packages:
-  * We recommend running Epicosm in a clean python virtual environment. On the command line you can create one with `python -m venv ./venv`, and then using these fresh Python file, with `source ./venv/bin/activate`. You can then bring in Epicosm's required modules with `pip install -r requirements.txt`. 
+  * We recommend running Epicosm in a clean python virtual environment. On the command line you can run `python -m venv ./venv` to create a new virtual environment. Activate the new venv with `source ./venv/bin/activate`. You can then bring in Epicosm's required modules with `pip install -r requirements.txt`. 
 
 #### 5. Run Epicosm from your command line, including your run flags
   * Epicosm will provide some help if it doesn't understand you, or just type `python epicosm.py` for usage and documentation. See below for more details, but for example a typical harvest can be started with
@@ -57,9 +57,9 @@ The tools can:
 
 ### 1 What does it do?
 
-Epicosm is a social media harvester, data manager and sentiment analyser. Currently, the platform uses Twitter as the data source and the sentiment analysis methods available are VADER, labMT and LIWC (you will need an LIWC dictionary for this). You provide  a list of users, and it will gather and store all tweets and metadata for each user. If you have a standard developer account, Epicosm can only retrieve the most 3,200 tweets from each user. With an approved academic researcher account, it can gather complete timeline histories from users. Images, videos and other attachments are stored as URLs. All information is stored by MongoDB. Harvesting can be iterated, for example once a week it can gather new tweets and add them to the database. As well as the full database, output includes a comma-separated-values (.csv) file, with the default fields being the user id number, the tweet id number, time and date, and the tweet content. Epicosm can also harvest the "following" list of users, but only to a depth of the last seven days (ie, *this approximates a users feed, or at least the pool of accounts from which the feed is built.*).
+Epicosm is a social media harvester, data manager and sentiment analyser. Currently, the platform uses Twitter as the data source and the sentiment analysis methods available are VADER, labMT and LIWC (you will need an LIWC dictionary for this). You provide a list of users, and it will gather and store all tweets and metadata for each user. If you have a standard developer account, Epicosm can only retrieve the most 3,200 tweets from each user. With an approved academic researcher account, it can gather complete timeline histories from users. Images, videos and other attachments are stored as URLs. All information is stored by MongoDB. Harvesting can be iterated, for example once a week it can gather new tweets and add them to the database. As well as the full database, output includes a comma-separated-values (.csv) file, with the default fields being the user id number, the tweet id number, time and date, and the tweet content. Epicosm can also harvest the "following" list of users, but only to a depth of the last seven days (ie, *this approximates a users feed, or at least the pool of accounts from which the feed is built.*).
 
-You will need Twitter API credentials by having a developer account authorised by Twitter. Please see our [guide to getting an authorised account](https://github.com/DynamicGenetics/Epicosm/blob/master/Twitter_Authorisation.pdf), and there are further details on [Twitter documentation](developer.twitter.com/en/apply-for-access.html) for how to do this. As of summer 2021, Twitter are more stringent when issuing academic research accounts and you will need to clearly describe the research purposes and institutational backing of your work, but these provide significantly elevated API access rights. **You may find many guides for getting authorisation which are out of date!**
+You will need Twitter API credentials by having a developer account authorised by Twitter. Please see our [guide to getting an authorised account](https://github.com/DynamicGenetics/Epicosm/blob/master/Twitter_Authorisation.pdf), and there are further details on [Twitter documentation](developer.twitter.com/en/apply-for-access.html) for how to do this. As of summer 2021, Twitter are more stringent when issuing academic research accounts and you will need to clearly describe the research purposes and institutional backing of your work, but these provide significantly elevated API access rights. **You may find many guides for getting authorisation which are out of date!**
 
 Epicosm uses [MongoDB](https://www.mongodb.com/) for data management, and this must be installed before being running Epicosm. This can be done through downloading and installing from the MongoDB website, or it can be done in a Terminal window with the commands
 `brew install mongodb` on a Mac
@@ -69,11 +69,11 @@ Epicosm uses [MongoDB](https://www.mongodb.com/) for data management, and this m
 
 ### 2 Running the Python scripts
 
-`epicosm.py` is the harvesting script.
+`epicosm.py` is the harvesting program.
 `python epicosm.py [your run flags]`
 
 You must provide 2 files:
-1. a list of user screen names in a file called `user_list`. The user list must be a plain text file, with a single username (twitter screen name) per line.  
+1. a list of user screen names in a file called `user_list`. The user list must be a plain text file, with a single username (twitter screen name) per line. You can have the `@` symbol included or not, Epicosm with recognise either. 
 2. Twitter API credentials will need to be supplied, by editing the file `bearer_token.py` (further instructions inside file). You will need your own Twitter API token by having a developer account authorised by Twitter, and generating the required codes. Please see [our guide](https://github.com/DynamicGenetics/Epicosm/blob/master/Twitter_Authorisation.pdf), and there are further details on [Twitter documentation](developer.twitter.com/en/apply-for-access.html) on how to do this.
 
 Please also see these further requirements.
@@ -83,7 +83,7 @@ Please also see these further requirements.
 
 `apt install mongodb` (or `yum`, `brew` or other package manager as appropriate)
 
-3. The following Python3 dependencies will need to be installed from the `src/requirements.txt` file if you run 
+3. The file `requirements.txt` contains the names of all the dependencies, and these can be simply installed with the command
 
 `pip3 install -r requirements.txt`
 
@@ -102,14 +102,17 @@ When running the harvester, please specify what you want Epicosm to do:
   --start_db     Start the MongoDB daemon in this folder, but don't run any Epicosm processes.
   --stop         Stop all Epicosm processes.
   --shutdown_db  Stop all Epicosm processes and shut down MongoDB.
-  --log          Create a logfile rather than printing progress to console.
+  --log          Create a logfile rather than printing progress to terminal.
 ```
 
-Example of single harvest:
-`./epicosm --harvest`
+Examples
+A single harvest:
+`python epicosm.py --harvest`
 
-Example iterated harvest in background, with a renewed user_list:
-`nohup ./epicosm --harvest --refresh --repeat &`
+Harvest once a week, with a renewed user_list:
+`python epicosm.py --harvest --refresh --repeat 7`
+
+Harvests can take a few hours per thousand users - connection and traffic dependent. In order to run processes in the background, we recommend starting a `tmux` session, starting the process appended with an ampersand `&` to put it into the background, and detaching the `tmux` session. Putting the process into `tmux` is required if you are running a repeated session. 
 
 ### 4 Natural Language Processing (Sentiment analysis)
 
@@ -133,14 +136,12 @@ The results of these analyses will be appended to each tweet's record, under the
 
 ### 5 Geoharvester
 
-The python script `geoharvester.py` can launch a Twitter stream listener by geographic location, as defined by one or more latitude/longitude boxes. Please see the example `geoboxes.py` for the format of this file. The geoharvester queries the older v1.1 API, so you will need to update `credentials.txt` to gain access to the Twitter streaming API. All tweets are stored in MongoDB under the database `geotweets` and the collection `geotweets_collection`. To sentiment analyse these, please see the section below on NLP. Few Tweets (historically, less than 2%) have geotags, but Twitter will try to assign a rough location based on city or country. As of 2020, Twitter is reporting they will phase out geotagging, since few people authorise Twitter to geotag their tweets. 
+The python script `geoharvester.py` can launch a Twitter stream listener by geographic location, as defined by one or more latitude/longitude boxes. Please see the example `geoboxes.py` for the format of this file. The geoharvester queries the older v1.1 API, so you will need to update `credentials.txt` to gain access to the Twitter streaming API. All tweets are stored in MongoDB under the database `geotweets` and the collection `geotweets_collection`. To sentiment analyse these, please see the section below on NLP. Few Tweets (historically, less than 2%) have geotags, but Twitter will try to assign a rough location based on city or country. As of 2020, Twitter reports they will phase out geotagging, since few people authorise Twitter to geotag their tweets. 
 
 ### 6 Data and other outputs
-The processed output is a a database of tweets from the users in your `user_list`, and a CSV file, in the folder `./output/csv/`, which by default has the fields: [1] the ID of the tweeter, [2] the id of the tweet, [3] the time and date of the tweet, and [4] the tweet content.
+The primary data is the database stored in MongoDB. Epicosm will create a DB called `twitter_db`, and collections called `tweets`, `follows` and `pseudofeed`. You can interact with MongoDB on the command line with `mongo`. To view and interact with the database using a GUI we find that [Robo 3T](https://robomongo.org/) works very well.
 
-Log files detailing what Epicosm has done is in `/epicosm_logs/`.
-
-Full tweet content and metadata of all tweets is stored in [MongoDB](https://www.mongodb.com/) in a format which is closely aligned with JSON. To work with full raw data, you will need MongoDB installed. The tweet database is named `twitter_db`, with two collections `tweets`, and `friends` which contains a list of all users that each user in your list are following. The `friends` collection will only be made if you ask for friends lists to be gathered. *Currently, gathering friends list causes the process to be heavily rate limited by Twitter! [solution in progress]*
+Log files are stored in `/epicosm_logs/`.
 
 A backup of the entire database is stored in `/output/twitter_db/`. If you have MongoDB installed, this can be restored with the command
 
@@ -152,7 +153,6 @@ for example:
 
 (However, please check [MongoDB documentation](https://docs.mongodb.com/manual/) as commands can change)
 
-To view and interact with the database using a GUI, you will need MongoDB installed, and a database viewer. Of open source options, we find that [Robo 3T](https://robomongo.org/) works very well.
 
 <p align="center"> ••• </p>
 
