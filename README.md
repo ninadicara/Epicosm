@@ -35,7 +35,13 @@ The tools can:
   * Complete the `bearer_token.py` file with your own bearer token. You will need to acquire a Twitter developer account, so please search for the current details on how to do that. Epicosm functions best with an approved academic developer account, which grants access to the `full archive` v2API, allowing complete timelines to be recovered. Search for current documentation on how to do this on the [Twitter Developer Portal](https://developer.twitter.com/en).
 
 #### 4. Install the required Python packages:
-  * We recommend running Epicosm in a clean python virtual environment. On the command line you can run `python -m venv ./venv` to create a new virtual environment. Activate the new venv with `source ./venv/bin/activate`. You can then bring in Epicosm's required modules with `pip install -r requirements.txt`. 
+  * We recommend running Epicosm in a clean python virtual environment. On the command line you can create a new virtual environment with 
+`python -m venv ./venv`
+then activate this clean environment with
+`source ./venv/bin/activate`
+and finally install the required dependencies with
+`pip install -r requirements.txt`
+You are now ready to run Epicosm. To leave your Python virtual environment, type `deactivate`.
 
 #### 5. Run Epicosm from your command line, including your run flags
   * Epicosm will provide some help if it doesn't understand you, or just type `python epicosm.py` for usage and documentation. See below for more details, but for example a typical harvest can be started with
