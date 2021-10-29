@@ -22,7 +22,6 @@ The tools can:
 * Harvest ongoing and retrospective Tweets from a list of users.
 * Harvest a "pseudofeed" of users - the recent tweets of the accounts being followed.
 * Sentiment analysis of Tweets using labMT, Vader and LIWC (dictionary required for LIWC).
-* Real-time Twitter stream-listen from geographic locations, and collate into a database.
 
 ## Instructions in a nutshell
 #### 1. [Download the Epicosm repository](https://github.com/DynamicGenetics/Epicosm/archive/master.zip), or clone the repo to your local machine.
@@ -60,9 +59,8 @@ You are now ready to run Epicosm. To leave your Python virtual environment, type
 #### 2 Running the Python scripts
 #### 3 Optional parameters
 #### 4 Natural Language Processing (Sentiment analysis)
-#### 5 Geoharvester
-#### 6 Data and other outputs
-#### 7 Licence
+#### 5 Data and other outputs
+#### 6 Licence
 
 <p align="center"> ••• </p>
 
@@ -98,6 +96,7 @@ Please also see these further requirements.
 
 `pip3 install -r requirements.txt`
 
+<p align="center"> ••• </p>
 
 ### 3 Optional parameters
 When running the harvester, please specify what you want Epicosm to do:
@@ -125,6 +124,8 @@ Harvest once a week, with a renewed user_list:
 
 Harvests can take a few hours per thousand users - connection and traffic dependent. In order to run processes in the background, we recommend starting a `tmux` session, starting the process appended with an ampersand `&` to put it into the background, and detaching the `tmux` session. Putting the process into `tmux` is required if you are running a repeated session. 
 
+<p align="center"> ••• </p>
+
 ### 4 Natural Language Processing (Sentiment analysis)
 
 Once you have a database with tweets, you can apply sentiment analysis to each document and insert the result into MongoDB with `python epicosm_nlp.py`.
@@ -145,11 +146,7 @@ The results of these analyses will be appended to each tweet's record, under the
 
 <p align="center"> ••• </p>
 
-### 5 Geoharvester
-
-The python script `geoharvester.py` can launch a Twitter stream listener by geographic location, as defined by one or more latitude/longitude boxes. Please see the example `geoboxes.py` for the format of this file. The geoharvester queries the older v1.1 API, so you will need to update `credentials.txt` to gain access to the Twitter streaming API. All tweets are stored in MongoDB under the database `geotweets` and the collection `geotweets_collection`. To sentiment analyse these, please see the section below on NLP. Few Tweets (historically, less than 2%) have geotags, but Twitter will try to assign a rough location based on city or country. As of 2020, Twitter reports they will phase out geotagging, since few people authorise Twitter to geotag their tweets. 
-
-### 6 Data and other outputs
+### 5 Data and other outputs
 The primary data is the database stored in MongoDB. Epicosm will create a DB called `twitter_db`, and collections called `tweets`, `follows` and `pseudofeed`. You can interact with MongoDB on the command line with `mongo`. To view and interact with the database using a GUI we find that [Robo 3T](https://robomongo.org/) works very well.
 
 Log files are stored in `/epicosm_logs/`.
@@ -160,14 +157,13 @@ A backup of the entire database is stored in `/output/twitter_db/`. If you have 
 
 for example:
 
-`mongoresotore -d twitter_db ./output/twitter_db/tweets.bson`
+`mongorestore -d twitter_db ./output/twitter_db/tweets.bson`
 
 (However, please check [MongoDB documentation](https://docs.mongodb.com/manual/) as commands can change)
 
-
 <p align="center"> ••• </p>
 
-### 7 Licence
+### 6 Licence
 DynamicGenetics/Epicosm is licensed under the GNU General Public License v3.0. For full details, please see our [license](https://github.com/DynamicGenetics/Epicosm/blob/master/LICENSE) file. 
 
 Epicosm is written and maintained by [Alastair Tanner](https://github.com/altanner), University of Bristol, Integrative Epidemiology Unit.
