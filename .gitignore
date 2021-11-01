@@ -20,3 +20,4 @@ text2.json
 .gitignore
 .gitignore
 bench1
+toy_nlp.py

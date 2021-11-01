@@ -32,6 +32,8 @@ def args_setup():
       help="Perform LIWC NLP on each record in MongoDB. You will need an LIWC dictionary in your working folder, named LIWC.dic")
     parser.add_argument("--textblob", action="store_true",
       help="Perform Textblob NLP on each record in MongoDB.")
+    parser.add_argument("--algo", action="store",
+      help="Apply 3rd party algo XXXXXXX.")
     parser.add_argument("--insert_groundtruth", action="store_true",
       help="Append groundtruth metrics to each record in MongoDB.")
 
@@ -92,6 +94,9 @@ def main():
 
     if args.liwc:
         nlp_ops.mongo_liwc(collection, total_records)
+
+    if args.algo:
+        nlp_ops.nlp_algo_apply(collection, total_records, args.algo)
 
     #~ backup database into BSON
     mongo_ops.backup_db(mongodump_executable_path,

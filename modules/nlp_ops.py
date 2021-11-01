@@ -259,29 +259,29 @@ def mongo_liwc(collection, total_records):
     print(f"OK - LIWC sentiment analysis applied to {index + 1} records.")
 
 
-def mongo_time_of_day(db, total_records):
-
-    """Apply a fuzzy time of day field eg early morning/midday/evening etc"""
-
-    pass
-
-
-def mongo_extract_emojis(db, total_records):
-
-    """Find emojis used in the post and copy them to an epicosm subfield."""
-
-    pass
-
-
-def mongo_nlp_example(collection, total_records):
+def nlp_algo_apply(collection, total_records, algo_path):
 
     """
-    This is a trivial placeholder for custom analyses.
-    Outputs the ratio of the letter 'e' to total characters
-    in field epicosm.trivial_nlp.e_ratio
-    """
+    The algo specification is that it takes tweet text as an input,
+    and returns a floating-point number between 0 and 1, with
+    0 indicating negative emotional content, and
+    1 indication positive emotional content.
 
-    print(f"e_ratio, analysing...")
+    Args:   Collection to apply to,
+            Total record count.
+            Path / name of the algo being applied.
+            This should be a .py file .
+
+    Rets:   Appends inferred sentiment field epicosm.[algo_path]
+    """
+    algo_path = "toy_nlp" #~ why can't variable be module name?
+    print(f"{algo_path}")
+    try:
+        import toy_nlp
+    except Exception as e:
+        print(f"wtf", e)
+
+    print(f"{algo_path}, analysing...")
 
     with alive_bar(total_records) as bar:
 
@@ -290,12 +290,12 @@ def mongo_nlp_example(collection, total_records):
             #~ get the text field for this record
             full_text_field = db_document_dict["text"]
 
-            count = Counter(full_text_field)
             collection.update_one({
                 "_id": db_document_dict["_id"]},
                 {"$set": {
                     "epicosm.trivial_nlp.e_ratio":
-                    float(format(int(count['e']) / int(len(full_text_field)), '.4f'))}})
+                    toy_nlp.nlp_algo_1(full_text_field)}})
+
             bar()
 
     print(f"OK - e_ratio analysis applied to {index + 1} records.")
