@@ -61,14 +61,10 @@ def start_mongo(mongod_executable_path, db_path, db_log_filename, epicosm_log_fi
         print(f"Problem starting MongoDB:", e.output)
         sys.exit(1)
 
-    true_db_path = subprocess.call(
-        ["mongo"],
-        ["--eval"],
-        ["'db.adminCommand(\"getCmdLineOpts\").parsed.storage.dbPath'"],)
-        # ["|"],
-        # ["tail"],
-        # ["-1"],)
-    print(f"MongoDB running, DB path: {true_db_path}")
+    true_db_path = subprocess.check_output([
+        "sh",
+        "./modules/get_mongo_dbpath.sh"])
+    print(f"MongoDB running, DB path: {true_db_path.decode('utf-8')}")
 
 
 def stop_mongo(dbpath):
