@@ -51,7 +51,6 @@ def start_mongo(mongod_executable_path, db_path, db_log_filename, epicosm_log_fi
     it ignores it and carries on with starting the daemon.
     """
 
-
     print(f"\nStarting the MongoDB daemon...")
     try:
         subprocess.Popen([mongod_executable_path, "--dbpath",
@@ -62,7 +61,14 @@ def start_mongo(mongod_executable_path, db_path, db_log_filename, epicosm_log_fi
         print(f"Problem starting MongoDB:", e.output)
         sys.exit(1)
 
-    print(f"MongoDB running, DB path: {db_path}")
+    true_db_path = subprocess.check_output(
+        ["mongo"],
+        ["--eval"],
+        ["'db.adminCommand(\"getCmdLineOpts\").parsed.storage.dbPath'"],
+        ["|"],
+        ["tail"],
+        ["-1"],)
+    print(f"MongoDB running, DB path: {true_db_path}")
 
 
 def stop_mongo(dbpath):
