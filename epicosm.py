@@ -149,7 +149,7 @@ if __name__ == "__main__":
     if args.repeat:
 
         main()
-        schedule.every(args.repeat).minutes.do(main)
+        schedule.every(args.repeat).days.do(main)
 
         while True:
             schedule.run_pending()
