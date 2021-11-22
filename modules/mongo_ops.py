@@ -64,10 +64,10 @@ def start_mongo(mongod_executable_path, db_path, db_log_filename, epicosm_log_fi
     true_db_path = subprocess.check_output(
         ["mongo"],
         ["--eval"],
-        ["'db.adminCommand(\"getCmdLineOpts\").parsed.storage.dbPath'"],
-        ["|"],
-        ["tail"],
-        ["-1"],)
+        ["'db.adminCommand(\"getCmdLineOpts\").parsed.storage.dbPath'"],)
+        # ["|"],
+        # ["tail"],
+        # ["-1"],)
     print(f"MongoDB running, DB path: {true_db_path}")
 
 
