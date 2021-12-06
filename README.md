@@ -24,7 +24,7 @@ The tools can:
 * Sentiment analysis of Tweets using labMT, Vader and LIWC (dictionary required for LIWC).
 
 ## Instructions in a nutshell
-#### 1. [Download the Epicosm repository](https://github.com/DynamicGenetics/Epicosm/archive/master.zip), or clone the repo to your local machine.
+#### 1. [Download the Epicosm repository](https://github.com/DynamicGenetics/Epicosm/archive/refs/heads/main.zip), or clone the repo to your local machine.
 
 #### 2. Install [MongoDB](https://www.mongodb.com/) version 4 or higher:
   * In a Mac terminal `brew install mongodb`
