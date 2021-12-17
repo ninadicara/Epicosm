@@ -210,7 +210,10 @@ def follows_list_harvest(db, working_collection):
 
             #~ request first 1000 follows
             if api_response == 1: #~ finished user, moving to next one
-                print(twitter_id, "follows count in DB:", working_collection.count())
+                try:
+                    print(twitter_id, "follows count in DB:", working_collection.count())
+                except Exception as e:
+                    print(f"That weird CentOS7 bug: {e}")
                 continue
             else:
                 #~ assign new field with who we are harvesting to each follow
