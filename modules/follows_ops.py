@@ -167,7 +167,7 @@ def request_follows_recents_response(twitter_id, params):
         return 1
 
 
-def follows_list_harvest(db, collection):
+def follows_list_harvest(db, working_collection):
 
     """
     Gathers the list of users being followed by each user.
@@ -194,7 +194,7 @@ def follows_list_harvest(db, collection):
 
         #~ we need a compound index here, since two people can follow the same user
         #~ so, records where BOTH follower_id and id are the same are considered duplicates
-        collection.create_index([
+        working_collection.create_index([
             ("follower_id", pymongo.ASCENDING),
             ("id", pymongo.ASCENDING)], unique=True, dropDups=True)
 
@@ -210,13 +210,13 @@ def follows_list_harvest(db, collection):
 
             #~ request first 1000 follows
             if api_response == 1: #~ finished user, moving to next one
-                print(twitter_id, "follows count in DB:", collection.count())
+                print(twitter_id, "follows count in DB:", working_collection.count())
                 continue
             else:
                 #~ assign new field with who we are harvesting to each follow
                 for follow_item in api_response["data"]:
                     follow_item["follower_id"] = twitter_id
-                insert_to_mongodb(api_response, collection)
+                insert_to_mongodb(api_response, working_collection)
 
             #~ we get a "next_token" if there are > 1000 follows.
             try:
@@ -229,18 +229,18 @@ def follows_list_harvest(db, collection):
                         #~ assign new field with who we are harvesting to each follow
                         for follow_item in api_response["data"]:
                             follow_item["follower_id"] = twitter_id
-                        insert_to_mongodb(api_response, collection)
+                        insert_to_mongodb(api_response, working_collection)
 
             except TypeError:
                 pass #~ api_response returned "1", so all done.
 
-            print(twitter_id, "follows count in DB:", collection.count_documents({"follower_id": twitter_id}))
+            print(twitter_id, "follows count in DB:", working_collection.count_documents({"follower_id": twitter_id}))
 
-    users_in_collection = len(collection.distinct("follower_id"))
-    print(f"\nThe DB contains a total of {collection.count()} follows from {users_in_collection} users.")
+    users_in_collection = len(working_collection.distinct("follower_id"))
+    print(f"\nThe DB contains a total of {working_collection.count()} follows from {users_in_collection} users.")
 
 
-def pseudofeed_harvest(db, collection):
+def pseudofeed_harvest(db, working_collection):
 
     """
     This is similar to the timeline harvest function, but is doing it for follow lists.
@@ -258,11 +258,11 @@ def pseudofeed_harvest(db, collection):
     CALLS:  request_timeline_response()
             insert_to_mongodb()
             json.load()
-            collection.count_documents()
-            collection.find_one()
+            working_collection.count_documents()
+            working_collection.find_one()
 
     ARGS:   db name (set in epicosm.py, just as local defaults)
-            collection name (set in epicosm.py)
+            working_collection name (set in epicosm.py)
     """
 
     if "follows" not in db.list_collection_names():
@@ -288,12 +288,12 @@ def pseudofeed_harvest(db, collection):
             pseudofeed["timestamp"] = timestamp
 
             #~ check if we have this user in DB
-            if collection.count_documents({"follower_id": twitter_id}) == 0:
+            if working_collection.count_documents({"follower_id": twitter_id}) == 0:
                 print(f"{twitter_id} follows are not in the database. Skipping.")
                 continue
 
             #~ make a list of all FOLLOws from MongoDB, for this user
-            follow_ids = collection.find({"follower_id": twitter_id}).distinct("id")
+            follow_ids = working_collection.find({"follower_id": twitter_id}).distinct("id")
 
             for follow_id in follow_ids:
 
@@ -327,35 +327,14 @@ def pseudofeed_harvest(db, collection):
                 print(e)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def insert_to_mongodb(api_response, collection):
+def insert_to_mongodb(api_response, working_collection):
 
     """
     Puts tweets into the MongoDB database collection. I'm not sure if I am doing
     this right, as "insert_one" loop seems silly? But I can't get "insert many"
     to work.
 
-    CALLS:  collection.insert_one()
+    CALLS:  working_collection.insert_one()
 
     ARGS:   Stuff that the API sent back after query,
             the name of the collection.
@@ -366,6 +345,6 @@ def insert_to_mongodb(api_response, collection):
     for record in api_response["data"]:
 
         try:
-            collection.insert_one(record)
+            working_collection.insert_one(record)
         except pymongo.errors.DuplicateKeyError:
             pass #~ denies duplicates being added

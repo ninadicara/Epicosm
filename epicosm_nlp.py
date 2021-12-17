@@ -65,7 +65,7 @@ def main():
     #~ setup signal handler
     signal.signal(signal.SIGINT, epicosm_meta.signal_handler)
 
-    #~ set collection name
+    #~ set working_collection depending on pseudofeed or not
     if args.pseudofeed:
         if args.vader:
             print(f"VADER cannot process large text blocks. Stopping.")
@@ -73,30 +73,30 @@ def main():
         if not any([args.labmt, args.liwc, args.textblob]):
             print(f"Please specify algorithm(s): --labmt --liwc --textblob")
             sys.exit(1)
-        collection = mongodb_config.pseudofeed_collection
+        working_collection = mongodb_config.pseudofeed_collection
     else:
-        collection = mongodb_config.collection
+        working_collection = mongodb_config.tweets_collection
 
     #~ check size of collection
-    total_records = collection.estimated_document_count()
+    total_records = working_collection.estimated_document_count()
     if total_records == 0:
         print(f"The collection seems empty. Nothing to do.")
         sys.exit(1)
 
     if args.vader:
-        nlp_ops.mongo_vader(collection, total_records)
+        nlp_ops.mongo_vader(working_collection, total_records)
 
     if args.labmt:
-        nlp_ops.mongo_labMT(collection, total_records)
+        nlp_ops.mongo_labMT(working_collection, total_records)
 
     if args.textblob:
-        nlp_ops.mongo_textblob(collection, total_records)
+        nlp_ops.mongo_textblob(working_collection, total_records)
 
     if args.liwc:
-        nlp_ops.mongo_liwc(collection, total_records)
+        nlp_ops.mongo_liwc(working_collection, total_records)
 
     if args.algo:
-        nlp_ops.nlp_algo_apply(collection, total_records, args.algo)
+        nlp_ops.nlp_algo_apply(working_collection, total_records, args.algo)
 
     #~ backup database into BSON
     mongo_ops.backup_db(mongodump_executable_path,

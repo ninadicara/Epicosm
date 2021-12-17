@@ -112,7 +112,7 @@ def main():
 
     #~ get tweets for each user and archive in mongodb
     if args.harvest:
-        twitter_ops.timeline_harvest(mongodb_config.db, mongodb_config.collection)
+        twitter_ops.timeline_harvest(mongodb_config.db, mongodb_config.tweets_collection)
 
     #~ if user wants the follows list, make it
     if args.get_follows:
