@@ -1,5 +1,6 @@
 wheel
 alive-progress
+chardet
 jinja2
 liwc
 pandas

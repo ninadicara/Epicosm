@@ -237,8 +237,10 @@ def follows_list_harvest(db, working_collection):
             print(twitter_id, "follows count in DB:", working_collection.count_documents({"follower_id": twitter_id}))
 
     users_in_collection = len(working_collection.distinct("follower_id"))
-    print(f"\nThe DB contains a total of {working_collection.count()} follows from {users_in_collection} users.")
-
+    try:
+        print(f"\nThe DB contains a total of {working_collection.count()} follows from {users_in_collection} users.")
+    except Exception as e:
+        print(f"That weird Centos7 errorL {e}")
 
 def pseudofeed_harvest(db, working_collection):
 

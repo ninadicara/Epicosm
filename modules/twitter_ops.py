@@ -194,7 +194,7 @@ def request_timeline_response(twitter_id, timeline_params):
         return 1
 
 
-def timeline_harvest(db, collection):
+def timeline_harvest(db, working_collection):
 
     """
     This is the main running function for the harvester,
@@ -232,11 +232,11 @@ def timeline_harvest(db, collection):
             twitter_id = user["id"]
 
             #~ check if we have this user in DB
-            if collection.count_documents({"author_id": twitter_id}) == 0:
+            if working_collection.count_documents({"author_id": twitter_id}) == 0:
                 latest_tweet = 1 #~ go as far back in time as possible.
-            else: #~ find latest tweet existing in collection
+            else: #~ find latest tweet existing in working_collection
                 #~ I know this looks bonkers, but pymongo cannot alphanumeric sort (afaik)
-                tweet_ids = list(collection.find({"author_id": twitter_id}, {"id": 1}))
+                tweet_ids = list(working_collection.find({"author_id": twitter_id}, {"id": 1}))
                 tweet_id_extract = []
                 for i in tweet_ids:
                     tweet_id_extract.append(int(i["id"]))
@@ -252,11 +252,11 @@ def timeline_harvest(db, collection):
             print(f"Requesting timeline for user {twitter_id}...")
             api_response = request_timeline_response(twitter_id, timeline_params)
             if api_response == 1: #~ this "1" is an end-trigger from request_timeline_response
-                user_tweet_count = collection.count_documents({"author_id": twitter_id})
+                user_tweet_count = working_collection.count_documents({"author_id": twitter_id})
                 print(f"Tweet count for user {twitter_id} in DB: {user_tweet_count}")
                 continue
             else:
-                insert_to_mongodb(api_response, collection)
+                insert_to_mongodb(api_response, working_collection)
 
             #~ we get a "next_token" if there are > 500 tweets.
             try:
@@ -266,84 +266,19 @@ def timeline_harvest(db, collection):
                     if api_response == 1: #~ "1" means "next"
                         continue
                     else:
-                        insert_to_mongodb(api_response, collection)
+                        insert_to_mongodb(api_response, working_collection)
             except TypeError as e:
                 print(e)
                 pass #~ move on for this harvest iteration.
 
-            user_tweet_count = collection.count_documents({"author_id": twitter_id})
+            user_tweet_count = working_collection.count_documents({"author_id": twitter_id})
             print(f"Tweet count for user {twitter_id} in DB: {user_tweet_count}")
 
-    users_in_collection = len(collection.distinct("author_id"))
-    print(f"\nThe DB contains a total of {collection.count()} tweets from {users_in_collection} users.")
+    users_in_collection = len(working_collection.distinct("author_id"))
+    print(f"\nThe DB contains a total of {working_collection.count()} tweets from {users_in_collection} users.")
 
 
-# def following_list_harvest(db, collection):
-
-#     """
-#     Builds the URL for requesting the user's following list,
-#     and sends it to the Twitter API v2.
-
-#     ARGS: the name of the following collection, taken from env,
-#           DB name
-#     """
-
-#     with open("user_details.json", "r") as infile:
-#         #~ load in the json of users
-#         user_details = json.load(infile)
-
-#         total_users = (len(user_details))
-#         print(f"\nHarvesting following lists from {total_users} users...")
-
-#         #~ we need a compound index here, since two people can follow the same user
-#         #~ so, records where BOTH follower_id and id are the same are considered duplicates
-#         collection.create_index([
-#             ("follower_id", pymongo.ASCENDING),
-#             ("id", pymongo.ASCENDING)], unique=True, dropDups=True)
-
-#         #~ loop over each user ID
-#         for user in user_details:
-
-#             params = {"max_results": 1000}
-#             twitter_id = user["id"]
-#             url = f"https://api.twitter.com/2/users/{twitter_id}/following?"
-
-#             print(f"Requesting {twitter_id} following list...")
-#             api_response = request_api_response(twitter_id, url, params)
-
-#             #~ request first 1000 followings
-#             if api_response == 1: #~ finished user, moving to next one
-#                 print(twitter_id, "followings count in DB:", following.count())
-#                 continue
-#             else:
-#                 #~ assign new field with who we are harvesting to each following
-#                 for following_item in api_response["data"]:
-#                     following_item["follower_id"] = twitter_id
-#                 insert_to_mongodb(api_response, collection)
-
-#             #~ we get a "next_token" if there are > 1000 followings.
-#             try:
-#                 while "next_token" in api_response["meta"]:
-#                     params["pagination_token"] = api_response["meta"]["next_token"]
-#                     api_response = request_api_response(twitter_id, url, params)
-#                     if api_response == 1: #~ "1" means "next"
-#                         continue
-#                     else:
-#                         #~ assign new field with who we are harvesting to each following
-#                         for following_item in api_response["data"]:
-#                             following_item["follower_id"] = twitter_id
-#                         insert_to_mongodb(api_response, collection)
-
-#             except TypeError:
-#                 pass #~ api_response returned "1", so all done.
-
-#             print(twitter_id, "followings count in DB:", collection.count_documents({"follower_id": twitter_id}))
-
-#     users_in_collection = len(collection.distinct("follower_id"))
-#     print(f"\nThe DB contains a total of {collection.count()} followings from {users_in_collection} users.")
-
-
-def insert_to_mongodb(api_response, collection):
+def insert_to_mongodb(api_response, working_collection):
 
     """
     Puts tweets into the MongoDB database collection. I'm not sure if I am doing
@@ -361,6 +296,6 @@ def insert_to_mongodb(api_response, collection):
     for record in api_response["data"]:
 
         try:
-            collection.insert_one(record)
+            working_collection.insert_one(record)
         except pymongo.errors.DuplicateKeyError:
             pass #~ denies duplicates being added
