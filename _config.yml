@@ -1,3 +1,5 @@
 remote_theme: pages-themes/cayman@v0.2.0
+title: Epicosm: epidemiological cohort social media
+description: Software to help research studies to link participants' social media data
 plugins:
 - jekyll-remote-theme
