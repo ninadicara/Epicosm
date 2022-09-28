@@ -6,3 +6,11 @@
 h1, h2 {
   font-family: 'Sen', "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+.release-licence-doi .badge {
+  margin-top: 2rem;
+}
+
+.release-licence-doi .badge+.badge {
+  margin-left: 1rem;
+}
