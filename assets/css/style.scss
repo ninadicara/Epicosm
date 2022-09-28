@@ -3,6 +3,6 @@
 
 @import "{{ site.theme }}";
 
-h1 {
-  font-family: 'Sen', sans-serif;
+h1, h2 {
+  font-family: 'Sen', "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
