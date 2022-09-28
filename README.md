@@ -1,20 +1,11 @@
 
-<p align="center">
-   <a href="https://github.com/DynamicGenetics/Epicosm"><img src="img/epicosmPNGsmall.png" width="300"></a> 
-</p>
-<p align="center">
-   <a href="https://www.python.org/"><img src="img/python_logo.png" width="100" height="80" /></a> 
-   <a href="https://www.docker.com/"><img src="img/dynamicgenetics_roundsqua.png" width="80" height="80" /></a> 
-   <a href="https://www.mongodb.com/"><img src="img/mongo_logo.png" width="100" height="80" /></a> 
-</p>
-
   ![release](https://img.shields.io/badge/release-1.0.0-brightgreen)
   [![GPLv3 license](https://img.shields.io/badge/licence-GPL_v3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
   [![DOI](https://zenodo.org/badge/405694270.svg)](https://zenodo.org/badge/latestdoi/405694270)
 
 
 ## Overview
-Epicosm: a framework for linking online social media in epidemiological cohorts. 
+Epicosm: a framework for linking online social media in epidemiological cohorts.
 Epicosm is a suite of tools for working with social media data in the context of
 epidemiological research. It is aimed for use by epidemiologists who wish to gather, analyse
 and integrate social media data with existing longitudinal and cohort-study research.
@@ -34,7 +25,7 @@ The tools can:
   * Complete the `bearer_token.py` file with your own bearer token. You will need to acquire a Twitter developer account, so please search for the current details on how to do that. Epicosm functions best with an approved academic developer account, which grants access to the `full archive` v2API, allowing complete timelines to be recovered. Search for current documentation on how to do this on the [Twitter Developer Portal](https://developer.twitter.com/en).
 
 #### 4. Install the required Python packages:
-  * We recommend running Epicosm in a clean python virtual environment. On the command line you can create a new virtual environment with 
+  * We recommend running Epicosm in a clean python virtual environment. On the command line you can create a new virtual environment with
 
 `python -m venv ./venv`
 
@@ -83,7 +74,7 @@ Epicosm uses [MongoDB](https://www.mongodb.com/) for data management, and this m
 `python epicosm.py [your run flags]`
 
 You must provide 2 files:
-1. a list of user screen names in a file called `user_list`. The user list must be a plain text file, with a single username (twitter screen name) per line. You can have the `@` symbol included or not, Epicosm with recognise either. 
+1. a list of user screen names in a file called `user_list`. The user list must be a plain text file, with a single username (twitter screen name) per line. You can have the `@` symbol included or not, Epicosm with recognise either.
 2. Twitter API credentials will need to be supplied, by editing the file `bearer_token.py` (further instructions inside file). You will need your own Twitter API token by having a developer account authorised by Twitter, and generating the required codes. Please see [our guide](https://github.com/DynamicGenetics/Epicosm/blob/master/Twitter_Authorisation.pdf), and there are further details on [Twitter documentation](developer.twitter.com/en/apply-for-access.html) on how to do this.
 
 Please also see these further requirements.
@@ -123,7 +114,7 @@ A single harvest:
 Harvest once a week, with a renewed user_list:
 `python epicosm.py --harvest --refresh --repeat 7`
 
-Harvests can take a few hours per thousand users - connection and traffic dependent. In order to run processes in the background, we recommend starting a `tmux` session, starting the process appended with an ampersand `&` to put it into the background, and detaching the `tmux` session. Putting the process into `tmux` is required if you are running a repeated session. 
+Harvests can take a few hours per thousand users - connection and traffic dependent. In order to run processes in the background, we recommend starting a `tmux` session, starting the process appended with an ampersand `&` to put it into the background, and detaching the `tmux` session. Putting the process into `tmux` is required if you are running a repeated session.
 
 <p align="center"> ••• </p>
 
@@ -135,11 +126,11 @@ To run, specify from the following flags:
 
 `--insert_groundtruth` Provide a file of groundtruth values called 'groundtruth.csv' and insert these into the local database.
 
-`--liwc` Apply LIWC (Pennebaker et al 2015) analysis and append values to the local database. You must have a LIWC dictionary in therun folder, named "LIWC.dic". LIWC has around 70 categories (including posemo and negemo), but many of these will return no value because tweets are too short to provide information. Empty categories are not appended to the database. **Note: the LIWC package is broken and cannot deal with its own dictionary. If it comes across phrasal entries it throws a key error. In LIWC 2015, most of these are variations on the word 'like' ('we like', 'they like', 'not like'), but the words 'like', 'not' 'we' are already in categories, and the phrasal categories have the same metrics anyway! You will need to clean your dictionary with the script in src called `cleanLIWC.sh`. 
+`--liwc` Apply LIWC (Pennebaker et al 2015) analysis and append values to the local database. You must have a LIWC dictionary in therun folder, named "LIWC.dic". LIWC has around 70 categories (including posemo and negemo), but many of these will return no value because tweets are too short to provide information. Empty categories are not appended to the database. **Note: the LIWC package is broken and cannot deal with its own dictionary. If it comes across phrasal entries it throws a key error. In LIWC 2015, most of these are variations on the word 'like' ('we like', 'they like', 'not like'), but the words 'like', 'not' 'we' are already in categories, and the phrasal categories have the same metrics anyway! You will need to clean your dictionary with the script in src called `cleanLIWC.sh`.
 
 `--labmt` Apply labMT (Dodds & Danforth 2011) analysis and append values to the local database. LabMT provides a single positive - negative metric, ranging from -1 to 1 (1 being positive sentiment, 0 being neutral, -1 being negative).
 
-`--vader` Apply VADER (Hutto & Gilbert 2014) analysis and append values to the local database. VADER returns 4 metrics: positive, neutral, negative and compound. See their documentation for details. 
+`--vader` Apply VADER (Hutto & Gilbert 2014) analysis and append values to the local database. VADER returns 4 metrics: positive, neutral, negative and compound. See their documentation for details.
 
 `--textblob` Apply TextBlob (github: @sloria) analysis and append values to the local database. TextBlob provides a single positive - negative metric, ranging from -1 to 1 (1 being positive sentiment, 0 being neutral, -1 being negative).
 
@@ -165,6 +156,6 @@ for example:
 <p align="center"> ••• </p>
 
 ### 6 Licence
-DynamicGenetics/Epicosm is licensed under the GNU General Public License v3.0. For full details, please see our [license](https://github.com/DynamicGenetics/Epicosm/blob/master/LICENSE) file. 
+DynamicGenetics/Epicosm is licensed under the GNU General Public License v3.0. For full details, please see our [license](https://github.com/DynamicGenetics/Epicosm/blob/master/LICENSE) file.
 
 Epicosm is written and maintained by [Alastair Tanner](https://github.com/altanner), University of Bristol, Integrative Epidemiology Unit.
