@@ -7,10 +7,16 @@ h1, h2 {
   font-family: 'Sen', "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.release-licence-doi .badge img {
-  margin-top: 2rem;
+.release-licence-doi {
+  margin-top: 1rem;
 }
 
 .badge + .badge {
   margin-left: 1rem;
+}
+
+@media screen and (max-width: 42em) {
+  .badge + .badge {
+    margin-left: 0rem;
+  }
 }
