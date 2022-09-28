@@ -1,9 +1,3 @@
-
-  ![release](https://img.shields.io/badge/release-1.0.0-brightgreen)
-  [![GPLv3 license](https://img.shields.io/badge/licence-GPL_v3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
-  [![DOI](https://zenodo.org/badge/405694270.svg)](https://zenodo.org/badge/latestdoi/405694270)
-
-
 ## Overview
 Epicosm: a framework for linking online social media in epidemiological cohorts.
 Epicosm is a suite of tools for working with social media data in the context of
