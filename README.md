@@ -1,25 +1,27 @@
 ## Overview
-Epicosm: a framework for linking online social media in epidemiological cohorts.
-Epicosm is a suite of tools for working with social media data in the context of
-epidemiological research. It is aimed for use by epidemiologists who wish to gather, analyse
-and integrate social media data with existing longitudinal and cohort-study research.
-The tools can:
-* Harvest ongoing and retrospective Tweets from a list of users.
-* Harvest a "pseudofeed" of users - the recent tweets of the accounts being followed.
-* Sentiment analysis of Tweets using labMT, Vader and LIWC (dictionary required for LIWC).
+As we go about our daily lives, each of us lays down digital footprints, such as through our interactions on social media, our search behaviour, and the things we buy. This vast repository of data on real life behaviour has huge potential to inform the research carried out by epidemiological cohorts into the causes of poor health.
 
-## Instructions in a nutshell
-#### 1. [Download the Epicosm repository](https://github.com/DynamicGenetics/Epicosm/archive/refs/heads/main.zip), or clone the repo to your local machine.
+Although it is straightforward to collect social media data from consenting study participants via the application programming interfaces (APIs) that social media sites make available, there are challenges specific to linking these data in birth cohorts. For example, cohorts have a responsibility to protect the identity of their participants. To do this, they maintain data safe havens certified by the International Organization for Standardisation (ISO) and the International Electrotechnical Commission (IEC), and ensure that participants’ personal and identifiable data remain inside these havens. This means that instead of providing a centralised service to cohorts, it is easier for cohorts to run social media linking software themselves, within their own data safe havens.
 
-#### 2. Install [MongoDB](https://www.mongodb.com/) version 4 or higher:
-  * In a Mac terminal `brew install mongodb`
-  * In a Linux terminal `apt install mongodb`
+We designed the Epicosm software to make it as straightforward as possible for epidemiological cohorts to run ongoing social media linkage themselves, keeping all participant data within their data safe havens. We collaborated with cohort leaders and participants to make sure the software was as useful as possible while meeting the expectations of the people donating their data for research.
 
-#### 3. Provide your Twitter API authorisation token:
-  * Complete the `bearer_token.py` file with your own bearer token. You will need to acquire a Twitter developer account, so please search for the current details on how to do that. Epicosm functions best with an approved academic developer account, which grants access to the `full archive` v2API, allowing complete timelines to be recovered. Search for current documentation on how to do this on the [Twitter Developer Portal](https://developer.twitter.com/en).
+Epicosm can:
+* collect previous and ongoing Twitter updates from a list of participants
+* collect Tweets from accounts those participants are following to give a sample of the updates they are likely to see when browsing Twitter
+* infer the mood of the collected Tweets using some of the most widely used approaches:  LabMT, Vader and (with a separate licence from the publisher) LIWC
 
-#### 4. Install the required Python packages:
-  * We recommend running Epicosm in a clean python virtual environment. On the command line you can create a new virtual environment with
+## Accessing the Twitter API
+To run Epicosm, you will need to [apply for an authorisation token (bearer token) from Twitter itself](https://developer.twitter.com/en/use-cases/do-research/academic-research) by registering for a Developer Account. Academic researchers are then able to apply for free access to the full Twitter archive.
+
+You will need to install the Epicosm software on an appropriate server (currently Linux or MacOS) that will run long-term to download participants’ Tweets and update a data base:
+
+## Installation and quick start
+#### 1. Download Epicosm using one of the links above.
+#### 2. [Install MongoDB](https://www.mongodb.com/docs/manual/administration/install-community/) version 4 or higher, following the instructions for your platform.
+#### 3. Add your own Twitter API authorisation token
+When you applied for a Twitter Developer account, you should have received a code called a `bearer token`. Add this to the `bearer_token.py` file in Epicosm’s top level directory.
+#### 4. Install the required Python packages
+Epicosm is written in the Python programming language (version 3), and it requires certain Python packages to work. We suggest setting up a new virtual Python environment to run Epicosm, like this (in a terminal window):
 
 `python -m venv ./venv`
 
@@ -31,17 +33,16 @@ and finally install the required dependencies with
 
 `pip install -r requirements.txt`
 
-You are now ready to run Epicosm. To leave your Python virtual environment, type `deactivate`.
-
-#### 5. Run Epicosm from your command line, including your run flags
-  * Epicosm will provide some help if it doesn't understand you, or just type `python epicosm.py` for usage and documentation. See below for more details, but for example a typical harvest can be started with
+You are now ready to run Epicosm.
+#### 5. Run Epicosm
+You can see the options for running Epicosm by typing `python epicosm.py` while in the software’s top level directory. There are some more detailed guidelines below, but you can start a typical data collection by typing:
 
 `python epicosm.py --harvest`
 
 <p align="center"> ••• </p>
 
-## More detail
-#### 1 What does it do?  
+## Detailed guidelines
+#### 1 What does Epicosm do?  
 #### 2 Running the Python scripts
 #### 3 Optional parameters
 #### 4 Natural Language Processing (Sentiment analysis)
@@ -50,106 +51,95 @@ You are now ready to run Epicosm. To leave your Python virtual environment, type
 
 <p align="center"> ••• </p>
 
-### 1 What does it do?
+### 1 What does Epicosm do?
+Epicosm is a social media harvester, data manager and sentiment analyser. Currently, the platform uses Twitter as the data source and the sentiment analysis methods available are VADER, labMT and LIWC (you will need a licenced LIWC dictionary for this). You provide a list of users, and it will gather and store all tweets and metadata for each user. If you have a standard developer account, Epicosm can only retrieve at most 3,200 tweets from each user. With an approved academic researcher account, however, it can gather complete timeline histories from users. Images, videos and other attachments are stored as URLs. All information is stored in a MongoDB data base. Harvesting can be repeated, for example once a week it can gather new tweets and add them to the data base. As well as the full database, output includes a comma delimited (.csv) file with, by default, the user id number, the tweet id number, time and date, and the tweet content. Epicosm can also harvest Tweets from accounts users are following, but only the last seven days. This is the pool of Tweets from which a user’s Twitter feed is built, although the actual Tweets seen are governed by Twitter’s own algorithms.
 
-Epicosm is a social media harvester, data manager and sentiment analyser. Currently, the platform uses Twitter as the data source and the sentiment analysis methods available are VADER, labMT and LIWC (you will need an LIWC dictionary for this). You provide a list of users, and it will gather and store all tweets and metadata for each user. If you have a standard developer account, Epicosm can only retrieve the most 3,200 tweets from each user. With an approved academic researcher account, it can gather complete timeline histories from users. Images, videos and other attachments are stored as URLs. All information is stored by MongoDB. Harvesting can be iterated, for example once a week it can gather new tweets and add them to the database. As well as the full database, output includes a comma-separated-values (.csv) file, with the default fields being the user id number, the tweet id number, time and date, and the tweet content. Epicosm can also harvest the "following" list of users, but only to a depth of the last seven days (ie, *this approximates a users feed, or at least the pool of accounts from which the feed is built.*).
+To use Epicosm, you will need to get Twitter API credentials by [applying for a Twitter developer account](developer.twitter.com/en/apply-for-access.html). Academic users can apply for elevated access rights by providing a description of their research project, providing it meets Twitter’s criteria.
 
-You will need Twitter API credentials by having a developer account authorised by Twitter. Please see our [guide to getting an authorised account](https://github.com/DynamicGenetics/Epicosm/blob/master/Twitter_Authorisation.pdf), and there are further details on [Twitter documentation](developer.twitter.com/en/apply-for-access.html) for how to do this. As of summer 2021, Twitter are more stringent when issuing academic research accounts and you will need to clearly describe the research purposes and institutional backing of your work, but these provide significantly elevated API access rights. **You may find many guides for getting authorisation which are out of date!**
-
-Epicosm uses [MongoDB](https://www.mongodb.com/) for data management, and this must be installed before being running Epicosm. This can be done through downloading and installing from the MongoDB website, or it can be done in a Terminal window with the commands
-`brew install mongodb` on a Mac
-`apt install mongodb` on Linux (Debian-based systems like Ubuntu).
+Epicosm uses [MongoDB](https://www.mongodb.com/) for data management, and you will need to [install this](https://www.mongodb.com/docs/manual/administration/install-community/) before running the software.
 
 <p align="center"> ••• </p>
 
 ### 2 Running the Python scripts
+`epicosm.py` is the harvesting program. You can run it like this:
 
-`epicosm.py` is the harvesting program.
 `python epicosm.py [your run flags]`
 
-You must provide 2 files:
-1. a list of user screen names in a file called `user_list`. The user list must be a plain text file, with a single username (twitter screen name) per line. You can have the `@` symbol included or not, Epicosm with recognise either.
-2. Twitter API credentials will need to be supplied, by editing the file `bearer_token.py` (further instructions inside file). You will need your own Twitter API token by having a developer account authorised by Twitter, and generating the required codes. Please see [our guide](https://github.com/DynamicGenetics/Epicosm/blob/master/Twitter_Authorisation.pdf), and there are further details on [Twitter documentation](developer.twitter.com/en/apply-for-access.html) on how to do this.
-
-Please also see these further requirements.
-
-1. Put all repository files and your user list into their own folder. The python script must be run from the folder it is in.
-2. MongoDB version 4 or higher will need to be installed. It does not need to be running, the script will check MongoDB's status, and start it if it is not running. The working database will be stored in the folder where you place your local copy of this repository (not the default location of /data/db). For Linux and MacOS, use your package manager (eg. apt, yum, yast), for example:
-
-`apt install mongodb` (or `yum`, `brew` or other package manager as appropriate)
-
-3. The file `requirements.txt` contains the names of all the dependencies, and these can be simply installed with the command
+Before running Epicosm, you must:
+1. Provide a list of user screen names in a file called `user_list` at the top level of the Epicosm directory. The user list must be a plain text file, with a single user name (twitter screen name) per line. You can start each name with the `@` symbol or not; Epicosm will recognise either.
+2. You will also need to supply Twitter API credentials by editing the `bearer_token.py` file in the top level of the Epicosm directory (there are further instructions inside the file). This needs to be your own bearer token from your Twitter developer account.
+3. Install MongoDB version 4 or higher. It does not need to be running when you start Epicosm: the script will check MongoDB's status, and start it if it is not already running. The working data base will be stored in Epicosm’s top level directory.
+4. Install Epicosm’s Python dependencies. They are listed in the  `requirements.txt` file, and these can be installed with a command such as
 
 `pip3 install -r requirements.txt`
 
 <p align="center"> ••• </p>
 
 ### 3 Optional parameters
-When running the harvester, please specify what you want Epicosm to do:
+When running the harvester, you can use these options to tell Epicosm what to do:
 
 ```
-  --harvest      Harvest tweets from all users from a file called user_list (provided by you) with a single user per line.
-  --get_follows  Create a database of the users that are being followed by the accounts in your user_list. (This process can be very slow, especially if your
-                 users are prolific followers.)
-  --pseudofeed   Harvest recent tweets from the users being followed by a user. (This process can be very slow and take up a lot of storage, especially if
-                 your users are prolific followers.)
-  --repeat       Repeat the harvest every . This process will need to be put to the background to free your terminal prompt.
-  --refresh      If you have a new user_list, this will tell Epicosm to switch to this list.
-  --start_db     Start the MongoDB daemon in this folder, but don't run any Epicosm processes.
-  --stop         Stop all Epicosm processes.
-  --shutdown_db  Stop all Epicosm processes and shut down MongoDB.
-  --log          Create a logfile rather than printing progress to terminal.
+  --harvest      Harvest tweets from all user names in a file called user_list (with a single user per line)
+  --get_follows  Create a database of the users that are being followed by the accounts in your user_list. (This process can be very slow, especially if your users are each following a lot of accounts)
+  --pseudofeed   Harvest recent tweets from accounts followed by those in your user_list. (This process can be very slow and take up a lot of storage, especially if your users are following a lot of accounts.)
+  --repeat       Specify how often to repeat the harvest e.g. “—repeat 7” means repeat every seven days
+  --refresh      If you have a new user_list, this will tell Epicosm to switch to this list
+  --start_db     Start the MongoDB daemon in this folder, but don't run any Epicosm processes
+  --stop         Stop all Epicosm processes
+  --shutdown_db  Stop all Epicosm processes and shut down MongoDB
+  --log          Create a log file rather than printing progress to terminal
 ```
 
-Examples
+For example:
+
 A single harvest:
 `python epicosm.py --harvest`
 
-Harvest once a week, with a renewed user_list:
+Harvest once a week, with a refreshed user_list:
 `python epicosm.py --harvest --refresh --repeat 7`
 
-Harvests can take a few hours per thousand users - connection and traffic dependent. In order to run processes in the background, we recommend starting a `tmux` session, starting the process appended with an ampersand `&` to put it into the background, and detaching the `tmux` session. Putting the process into `tmux` is required if you are running a repeated session.
+Harvests can take a few hours per thousand users, depending on connection speed and network traffic. To run the Epicosm processes in the background, freeing up your terminal, we recommend starting a `tmux` session, starting the process appended with an ampersand `&` to put it into the background, and detaching the `tmux` session. Putting the process into `tmux` is required if you are running a repeated session.
 
 <p align="center"> ••• </p>
 
-### 4 Natural Language Processing (Sentiment analysis)
+### 4 Sentiment analysis
 
-Once you have a database with tweets, you can apply sentiment analysis to each document and insert the result into MongoDB with `python epicosm_nlp.py`.
+Once you have a database with tweets, you can apply sentiment analysis to each document and add the result to each Tweet’s MongoDB record with `python epicosm_nlp.py`.
 
-To run, specify from the following flags:
+To run, choose from the following options:
 
-`--insert_groundtruth` Provide a file of groundtruth values called 'groundtruth.csv' and insert these into the local database.
+`--insert_groundtruth` Provide ground truth values (estimates of sentiment from a different source) in a file called 'groundtruth.csv' and add these to the local database
 
-`--liwc` Apply LIWC (Pennebaker et al 2015) analysis and append values to the local database. You must have a LIWC dictionary in therun folder, named "LIWC.dic". LIWC has around 70 categories (including posemo and negemo), but many of these will return no value because tweets are too short to provide information. Empty categories are not appended to the database. **Note: the LIWC package is broken and cannot deal with its own dictionary. If it comes across phrasal entries it throws a key error. In LIWC 2015, most of these are variations on the word 'like' ('we like', 'they like', 'not like'), but the words 'like', 'not' 'we' are already in categories, and the phrasal categories have the same metrics anyway! You will need to clean your dictionary with the script in src called `cleanLIWC.sh`.
+`--liwc` Apply LIWC (Pennebaker et al 2015) analysis and append the results to the local database. You must have a LIWC dictionary (named “LIWC.dic”) in the directory you are running Epicosm in. LIWC has around 70 categories, including positive emotion (posemo) and negative emotion (negemo), but many of these will return no value because the short Tweets do not include words in these categories. Empty categories are not appended to the database.
 
-`--labmt` Apply labMT (Dodds & Danforth 2011) analysis and append values to the local database. LabMT provides a single positive - negative metric, ranging from -1 to 1 (1 being positive sentiment, 0 being neutral, -1 being negative).
+`--labmt` Apply labMT (Dodds & Danforth 2011) analysis and append values to the local database. LabMT provides a single score, ranging from -1 to 1 (1 being most positive sentiment, 0 being neutral, -1 being most negative).
 
-`--vader` Apply VADER (Hutto & Gilbert 2014) analysis and append values to the local database. VADER returns 4 metrics: positive, neutral, negative and compound. See their documentation for details.
+`--vader` Apply VADER (Hutto & Gilbert 2014) analysis and append values to the local database. VADER returns 4 metrics: positive, neutral, negative and compound. See the VADER documentation for details.
 
-`--textblob` Apply TextBlob (github: @sloria) analysis and append values to the local database. TextBlob provides a single positive - negative metric, ranging from -1 to 1 (1 being positive sentiment, 0 being neutral, -1 being negative).
+`--textblob` Apply TextBlob (github: @sloria) analysis and append values to the local database. TextBlob provides a single score, ranging from -1 to 1 (1 being most positive sentiment, 0 being neutral, -1 being most negative).
 
 The results of these analyses will be appended to each tweet's record, under the field "epicosm", and stored in MongoDB.
 
 <p align="center"> ••• </p>
 
 ### 5 Data and other outputs
-The primary data is the database stored in MongoDB. Epicosm will create a DB called `twitter_db`, and collections called `tweets`, `follows` and `pseudofeed`. You can interact with MongoDB on the command line with `mongo`. To view and interact with the database using a GUI we find that [Robo 3T](https://robomongo.org/) works very well.
+The primary data are stored in the MongoDB database. Epicosm will create a data base called `twitter_db`, and collections called `tweets`, `follows` and `pseudofeed`. You can interact with MongoDB on the command line with `mongo`. To view and interact with the database using a graphical user interface, we find that [Robo 3T](https://robomongo.org/) works very well.
 
 Log files are stored in `/epicosm_logs/`.
 
 A backup of the entire database is stored in `/output/twitter_db/`. If you have MongoDB installed, this can be restored with the command
 
-`mongorestore [your name given to the database] [the path to the mongodump bson file]`
+`mongorestore -d [your name given to the database] [the path to the mongodump bson file]`
 
 for example:
 
 `mongorestore -d twitter_db ./output/twitter_db/tweets.bson`
 
-(However, please check [MongoDB documentation](https://docs.mongodb.com/manual/) as commands can change)
+Please check the [MongoDB documentation](https://docs.mongodb.com/manual/) for the most up-to-date version of the commands.
 
 <p align="center"> ••• </p>
 
 ### 6 Licence
-DynamicGenetics/Epicosm is licensed under the GNU General Public License v3.0. For full details, please see our [license](https://github.com/DynamicGenetics/Epicosm/blob/master/LICENSE) file.
+DynamicGenetics/Epicosm is licensed under the GNU General Public License v3.0. For details, please see the [license file](https://github.com/DynamicGenetics/Epicosm/blob/master/LICENSE).
 
-Epicosm is written and maintained by [Alastair Tanner](https://github.com/altanner), University of Bristol, Integrative Epidemiology Unit.
+Epicosm is written and maintained by [Dr Alastair Tanner](https://github.com/altanner) in the University of Bristol Research Software Engineering team.

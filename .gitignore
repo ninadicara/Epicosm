@@ -8,7 +8,6 @@ user_list
 db
 db_logs
 epicosm_logs
-bearer_token.py
 user_details.json
 user_errors.json
 output
